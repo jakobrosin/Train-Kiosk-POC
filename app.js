@@ -1400,6 +1400,16 @@
       meta: `${t('platform')} ${item.platform}`,
       timeIndex: idx,
       onSelect: () => {
+        // Validate that return time is after departure time if on the same day
+        if (state.returnDateIndex === state.departureDateIndex && idx <= state.departureTimeIndex) {
+          playErrorSound();
+          const errorMessage = currentLang === 'et'
+            ? 'Tagasisõidu aeg peab olema pärast väljumisaega.'
+            : 'Return time must be after departure time.';
+          speakAsync(errorMessage, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
+          return;
+        }
+
         state.returnTimeIndex = idx;
         state.returnTime = item.time;
         state.returnPlatform = item.platform;
