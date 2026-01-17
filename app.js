@@ -144,6 +144,12 @@
       completedTitle: 'Finished',
       completed: 'Completed',
       thankYou: 'Thank you for your purchase. Your tickets are printing now. The printer slot is located to the left of the keypad.',
+      timeUntilDeparture: 'Your train departs in',
+      hours: 'hours',
+      hour: 'hour',
+      minutes: 'minutes',
+      minute: 'minute',
+      and: 'and',
       whereToGo: 'Where would you like to go?',
       chooseDestination: 'Choose destination for navigation instructions.',
       myPlatform: 'My platform',
@@ -324,6 +330,11 @@
       completedTitle: 'Lõpetatud',
       completed: 'Lõpetatud',
       thankYou: 'Täname ostu eest. Sinu pileteid prinditakse. Printeri ava asub klahvistikust vasakul pool.',
+      timeUntilDeparture: 'Sinu rong väljub',
+      timeUntilDepartureAfter: 'pärast',
+      hourGenitive: 'tunni',
+      minuteGenitive: 'minuti',
+      and: 'ja',
       whereToGo: 'Kuhu soovid edasi liikuda?',
       chooseDestination: 'Vali sihtpunkt liikumisjuhiste saamiseks.',
       myPlatform: 'Minu platvorm',
@@ -469,6 +480,32 @@
       let result = (hundred === 1 ? 'sada' : ones[hundred] + 'sada');
       if (remainder > 0) {
         result += ' ' + numberToEstonian(remainder);
+      }
+      return result;
+    }
+    return String(num); // Fallback for larger numbers
+  }
+
+  // Convert numbers to Estonian genitive case (for "in X hours/minutes")
+  function numberToEstonianGenitive(num) {
+    const onesGenitive = ['', 'ühe', 'kahe', 'kolme', 'nelja', 'viie', 'kuue', 'seitsme', 'kaheksa', 'üheksa'];
+    const teensGenitive = ['kümne', 'üheteistkümne', 'kaheteistkümne', 'kolmeteistkümne', 'neljateistkümne', 'viieteistkümne', 'kuueteistkümne', 'seitsmeteistkümne', 'kaheksateistkümne', 'üheksateistkümne'];
+    const tensGenitive = ['', '', 'kahekümne', 'kolmekümne', 'nelikümne', 'viiekümne', 'kuuekümne', 'seitsmekümne', 'kaheksakümne', 'üheksakümne'];
+
+    if (num === 0) return 'nulli';
+    if (num < 10) return onesGenitive[num];
+    if (num < 20) return teensGenitive[num - 10];
+    if (num < 100) {
+      const ten = Math.floor(num / 10);
+      const one = num % 10;
+      return tensGenitive[ten] + (one > 0 ? ' ' + onesGenitive[one] : '');
+    }
+    if (num < 1000) {
+      const hundred = Math.floor(num / 100);
+      const remainder = num % 100;
+      let result = (hundred === 1 ? 'saja' : onesGenitive[hundred] + 'saja');
+      if (remainder > 0) {
+        result += ' ' + numberToEstonianGenitive(remainder);
       }
       return result;
     }
@@ -835,6 +872,81 @@
       .filter(t => state.quantities[t.label] > 0)
       .map(t => `${state.quantities[t.label]} ${getTicketTypeLabel(t.label)}`)
       .join(', ');
+  }
+
+  // Calculate time until departure and format announcement
+  function getTimeUntilDeparture() {
+    const dates = getDates();
+    const departureDate = dates[state.departureDateIndex];
+
+    // Only announce if departure is today
+    if (!departureDate || !departureDate.isToday) {
+      return null;
+    }
+
+    // Parse departure time (HH:MM format)
+    const [hours, minutes] = state.departureTime.split(':').map(Number);
+
+    // Create departure datetime
+    const now = new Date();
+    const departure = new Date();
+    departure.setHours(hours, minutes, 0, 0);
+
+    // Calculate difference in minutes
+    const diffMs = departure - now;
+    const diffMinutes = Math.floor(diffMs / 60000);
+
+    // Don't announce if already past or less than 1 minute
+    if (diffMinutes < 1) {
+      return null;
+    }
+
+    // Calculate hours and minutes
+    const hoursUntil = Math.floor(diffMinutes / 60);
+    const minutesUntil = diffMinutes % 60;
+
+    // Format announcement
+    let parts = [];
+
+    if (currentLang === 'et') {
+      // Estonian: Use genitive case with "pärast" at the end
+      if (hoursUntil > 0) {
+        const hoursFormatted = numberToEstonianGenitive(hoursUntil);
+        parts.push(`${hoursFormatted} ${t('hourGenitive')}`);
+      }
+
+      if (minutesUntil > 0) {
+        const minutesFormatted = numberToEstonianGenitive(minutesUntil);
+        parts.push(`${minutesFormatted} ${t('minuteGenitive')}`);
+      }
+
+      if (parts.length === 0) {
+        return null;
+      }
+
+      const timeString = parts.join(` ${t('and')} `);
+      return `${t('timeUntilDeparture')} ${timeString} ${t('timeUntilDepartureAfter')}.`;
+    } else {
+      // English: Standard format
+      if (hoursUntil > 0) {
+        const hoursWord = hoursUntil === 1 ? t('hour') : t('hours');
+        const hoursFormatted = formatNumberForTTS(hoursUntil);
+        parts.push(`${hoursFormatted} ${hoursWord}`);
+      }
+
+      if (minutesUntil > 0) {
+        const minutesWord = minutesUntil === 1 ? t('minute') : t('minutes');
+        const minutesFormatted = formatNumberForTTS(minutesUntil);
+        parts.push(`${minutesFormatted} ${minutesWord}`);
+      }
+
+      if (parts.length === 0) {
+        return null;
+      }
+
+      const timeString = parts.join(` ${t('and')} `);
+      return `${t('timeUntilDeparture')} ${timeString}.`;
+    }
   }
 
   // Generate dates (today and next 6 days)
@@ -1750,7 +1862,12 @@
 
   function finalMessage() {
     state.screen = 'done';
-    const msg = `${t('thankYou')} ${t('whereToGo')}`;
+
+    // Add time until departure if departing today
+    const timeUntil = getTimeUntilDeparture();
+    const msg = timeUntil
+      ? `${t('thankYou')} ${timeUntil} ${t('whereToGo')}`
+      : `${t('thankYou')} ${t('whereToGo')}`;
 
     // Play completion sound
     playCompletionSound();
