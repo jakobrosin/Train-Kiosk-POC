@@ -19,14 +19,19 @@
       instructions: 'Use Up and Down arrow keys to move, press Enter to confirm. Press Backspace to return to the previous menu and R to repeat the last message.',
       instructionsFull: 'Use Up and Down arrow keys to navigate, Enter to select. Press R to repeat the last message.',
       instructionsShort: 'Arrow keys to navigate. R to repeat.',
-      hintBar: 'Use Arrow keys to move, Enter to select, Backspace to go back, R to repeat.',
+      hintBar: 'Use Arrow keys to move, Enter to select, Backspace to go back, R to repeat, S to toggle system voice.',
       interactiveDemo: 'Interactive demo',
       trainTicketMachine: 'Train Ticket Purchase Machine',
       baltiJaam: 'Balti Jaam',
 
+      // TTS Toggle
+      ttsEnabled: 'System voice enabled.',
+      ttsDisabled: 'System voice disabled. Use your screen reader.',
+      ttsToggleHint: 'Press S to toggle system voice on or off.',
+
       // Language selection
       languageTitle: 'Select Language',
-      languagePrompt: 'Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm.',
+      languagePrompt: 'Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice.',
       english: 'English',
       estonian: 'Eesti',
 
@@ -192,14 +197,19 @@
       instructions: 'Kasuta üles ja alla nooli liikumiseks, vajuta Enter kinnitamiseks. Vajuta backspace eelmisesse menüüsse naasmiseks ja R viimase sõnumi kordamiseks.',
       instructionsFull: 'Kasuta üles ja alla nooli navigeerimiseks, Enter valimiseks. Vajuta R viimase sõnumi kordamiseks.',
       instructionsShort: 'Nooleklahvid navigeerimiseks. R kordamiseks.',
-      hintBar: 'Nooleklahvid liikumiseks, Enter valimiseks, Backspace tagasi, R kordamiseks.',
+      hintBar: 'Nooleklahvid liikumiseks, Enter valimiseks, Backspace tagasi, R kordamiseks, S süsteemi hääle muutmiseks.',
       interactiveDemo: 'Interaktiivne demo',
       trainTicketMachine: 'Rongipiletite ostmise automaat',
       baltiJaam: 'Balti Jaam',
 
+      // TTS Toggle
+      ttsEnabled: 'Süsteemi hääl sisse lülitatud.',
+      ttsDisabled: 'Süsteemi hääl välja lülitatud. Kasuta oma ekraanilugejat.',
+      ttsToggleHint: 'Vajuta S, et süsteemi hääl sisse või välja lülitada.',
+
       // Language selection
       languageTitle: 'Vali keel',
-      languagePrompt: 'Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks.',
+      languagePrompt: 'Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S, et süsteemi hääl sisse või välja lülitada.',
       english: 'English',
       estonian: 'Eesti',
 
@@ -1850,9 +1860,30 @@
     }
   }
 
+  // Toggle TTS function
+  function toggleTTS() {
+    speechEnabled = !speechEnabled;
+    const message = speechEnabled ? t('ttsEnabled') : t('ttsDisabled');
+
+    // Always update the screen reader live region
+    el.srLive.textContent = message;
+
+    // If enabling TTS, speak the message
+    if (speechEnabled) {
+      speakAsync(message, { interrupt: true, rememberSpoken: false, rememberPrompt: false });
+    }
+  }
+
   // Key handling
   document.addEventListener('keydown', (e) => {
     const key = e.key;
+
+    // Toggle TTS
+    if (key === 's' || key === 'S') {
+      e.preventDefault();
+      toggleTTS();
+      return;
+    }
 
     // Repeat prompt
     if (key === 'r' || key === 'R') {
