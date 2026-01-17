@@ -1,6 +1,8 @@
-# Train Ticketing Kiosk - Accessible Demo
+# Train Kiosk POC
 
 A proof-of-concept interactive demo showcasing keyboard navigation logic and accessibility features for train ticket kiosks.
+
+**[▶️ Run Demo](https://jakobrosin.github.io/Train-Kiosk-POC/)**
 
 ## About This Project
 
@@ -62,8 +64,8 @@ This project demonstrates the fundamental keyboard navigation patterns and user 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/jakobrosin/Train-ticketing-kiosk-accessible-demo.git
-   cd Train-ticketing-kiosk-accessible-demo
+   git clone https://github.com/jakobrosin/Train-Kiosk-POC.git
+   cd Train-Kiosk-POC
    ```
 
 2. Open `index.html` in a modern web browser:
