@@ -982,8 +982,12 @@
       }
       // On ticket type screen, announce "ticket type, amount X" for ticket items
       else if (state.screen === 'type' && item.ticketLabel !== undefined) {
-        const qtyFormatted = item.quantity === 0 ? t('none') : formatNumberForTTS(item.quantity);
-        announcement = `${item.label}, ${t('amount')} ${qtyFormatted}`;
+        if (item.quantity === 0) {
+          announcement = t('none');
+        } else {
+          const qtyFormatted = formatNumberForTTS(item.quantity);
+          announcement = `${item.label}, ${t('amount')} ${qtyFormatted}`;
+        }
       } else {
         const meta = item.meta ? `, ${item.meta}` : '';
         announcement = `${item.label}${meta}`;
