@@ -774,11 +774,30 @@
   }
 
   function playFanfareSound() {
-    // Celebratory fanfare: ascending triumphant melody
-    playTone(523, 0.12, 'sine', 0.25); // C5
-    setTimeout(() => playTone(659, 0.12, 'sine', 0.25), 120); // E5
-    setTimeout(() => playTone(784, 0.12, 'sine', 0.25), 240); // G5
-    setTimeout(() => playTone(1047, 0.35, 'sine', 0.3), 360); // C6 (longer, triumphant)
+    // Obnoxious celebratory jingle melody - returns promise when complete
+    return new Promise((resolve) => {
+      // Part 1: Rising fanfare
+      playTone(523, 0.15, 'square', 0.3); // C5
+      setTimeout(() => playTone(659, 0.15, 'square', 0.3), 150); // E5
+      setTimeout(() => playTone(784, 0.15, 'square', 0.3), 300); // G5
+      setTimeout(() => playTone(1047, 0.2, 'square', 0.35), 450); // C6
+
+      // Part 2: Jingle melody
+      setTimeout(() => playTone(1047, 0.15, 'sine', 0.3), 700); // C6
+      setTimeout(() => playTone(988, 0.15, 'sine', 0.3), 850); // B5
+      setTimeout(() => playTone(880, 0.15, 'sine', 0.3), 1000); // A5
+      setTimeout(() => playTone(784, 0.15, 'sine', 0.3), 1150); // G5
+      setTimeout(() => playTone(659, 0.15, 'sine', 0.3), 1300); // E5
+      setTimeout(() => playTone(784, 0.15, 'sine', 0.3), 1450); // G5
+
+      // Part 3: Big triumphant finish
+      setTimeout(() => playTone(1047, 0.25, 'square', 0.35), 1650); // C6
+      setTimeout(() => playTone(1047, 0.15, 'square', 0.35), 1950); // C6
+      setTimeout(() => playTone(1047, 0.4, 'square', 0.4), 2150); // C6 (long)
+
+      // Resolve after all notes complete
+      setTimeout(resolve, 2600);
+    });
   }
 
   // Route map display
@@ -1987,7 +2006,6 @@
 
     // Special handling for pirukabaar: play fanfare and announce special
     if (destination === 'pirukabaar') {
-      playFanfareSound();
       const specialMsg = `${t('pirukabaarSpecial')} ${directions} ${t('haveNiceJourney')}`;
 
       setScreen({
@@ -2012,11 +2030,16 @@
           }
         ],
         focusTitle: true,
-        speakPrompt: true,
+        speakPrompt: false, // Don't speak yet - wait for fanfare
       });
 
-      // Turn speech off after announcing directions
-      setTimeout(() => { speechEnabled = false; }, 250);
+      // Play fanfare, then speak after it completes
+      playFanfareSound().then(() => {
+        speakAsync(specialMsg, { interrupt: true, rememberSpoken: true, rememberPrompt: true });
+        // Turn speech off after announcing directions
+        setTimeout(() => { speechEnabled = false; }, 250);
+      });
+
       return;
     }
 
