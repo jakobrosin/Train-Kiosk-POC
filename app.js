@@ -1014,12 +1014,18 @@
   // Screens
   function languageScreen() {
     state.screen = 'lang';
+
+    // Bilingual prompt text
+    const englishPrompt = 'Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice.';
+    const estonianPrompt = 'Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S, et süsteemi hääl sisse või välja lülitada.';
+    const fullPrompt = `${englishPrompt} / ${estonianPrompt}`;
+
     // Always show in English first since user hasn't chosen yet
     setScreen({
       locationText: 'Interactive demo',
       stepText: '',
       title: 'Select Language / Vali keel',
-      prompt: 'Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice. / Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S, et süsteemi hääl sisse või välja lülitada.',
+      prompt: fullPrompt,
       menuItems: [
         {
           label: 'English',
@@ -1043,8 +1049,13 @@
         }
       ],
       focusTitle: true,
-      speakPrompt: true,
+      speakPrompt: false, // We'll speak manually below
     });
+
+    // Speak the prompt in both languages with proper TTS
+    // First English, then Estonian with Finnish TTS
+    speakAsync(englishPrompt, { interrupt: true, rememberSpoken: false, rememberPrompt: false, forceLang: 'en-US' })
+      .then(() => speakAsync(estonianPrompt, { interrupt: false, rememberSpoken: true, rememberPrompt: true, forceLang: 'fi-FI' }));
   }
 
   function bootScreen() {
