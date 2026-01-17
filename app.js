@@ -158,7 +158,7 @@
       stationExit: 'Station exit',
       selver: 'Selver',
       hesburger: 'Hesburger',
-      pirukabaar: 'Pirukabaar',
+      pirukabaar: 'Mega cool pie store',
       haveNiceJourney: 'Have a nice journey. Accessibility mode disabled.',
 
       // Platform directions
@@ -363,10 +363,10 @@
       cafeteriaDirections: 'Kohvik asub umbes neljakümne meetri kaugusel paremal. Järgige juhtteed esimese ristmikuni ja pöörake paremale. Kohviku sissepääs on kahekümne meetri kaugusel vasakul.',
       bathroomDirections: 'Tualett asub umbes kolmekümne meetri kaugusel otse ees. Järgige juhtteed esimesest ristmikust mööda. Tualeti sissepääs on paremal, tähistatud taktiilse sildiga uksest vasakul.',
       exitDirections: 'Jaama väljapääs asub umbes kuuekümne meetri kaugusel teie selja taga. Pöörake ümber ja järgige juhtteed. Peauksed avanevad automaatselt.',
-      selverDirections: 'Selveri kauplus asub umbes seitsmekümne meetri kaugusel vasakul. Järgige juhtteed teise ristmikuni ja pöörake vasakule. Jätkake otse nelikümmend meetrit. Kaupluse sissepääs on paremal.',
-      hesburgerDirections: 'Hesburger asub umbes üheksakümne meetri kaugusel otse ees. Järgige juhtteed teisest ristmikust mööda. Jätkake viiskümmend meetrit. Restorani sissepääs on vasakul, automaatuksed.',
-      pirukabaarDirections: 'Pirukabaar asub umbes kolmekümne viie meetri kaugusel paremal. Järgige juhtteed esimese ristmikuni ja pöörake paremale. Jätkage viisteist meetrit. Sissepääs on paremal.',
-      pirukabaarSpecial: 'Kapsapirukad on täna ainult kolmkümmend protsenti soodsam!',
+      selverDirections: 'Selveri kauplus asub umbes seitsmekümne meetri kaugusel vasakul. Järgi juhtteed ning pööra teise ristmiku juures vasakule. Jätka otse nelikümmend meetrit. Kaupluse sissepääs on paremal.',
+      hesburgerDirections: 'Hesburger asub umbes üheksakümne meetri kaugusel otse ees. Järgi juhtteed ja pööra kolmanda ristmiku juures paremale. Jätka viiskümmend meetrit. Automaatustega sissepääs asub seejärel vasakul.',
+      pirukabaarDirections: 'Pirukabaar asub umbes kolmekümne viie meetri kaugusel paremal. Järgi juhtteed ja keera esimesel ristmikul paremale. Jätka viisteist meetrit. Sissepääs on paremal ning leitav ka kõlava muusika järgi.',
+      pirukabaarSpecial: 'Kapsapirukad on täna ainult kolmkümmend protsenti soodsamad! Tule kohe!',
 
       restartDemo: 'Taaskäivita demo',
 
