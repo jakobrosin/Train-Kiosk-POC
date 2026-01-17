@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" id="htmlRoot">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Train Ticket Kiosk Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="kiosk" aria-label="Train ticket kiosk demo">
+    <header class="kiosk__header">
+      <div class="kiosk__brand">
+        <div class="kiosk__brandTitle">Train Ticket Machine</div>
+        <div class="kiosk__brandSub" id="location">Interactive demo</div>
+      </div>
+      <div class="kiosk__status" aria-hidden="true" id="stepIndicator"></div>
+    </header>
+
+    <section class="kiosk__screen" aria-live="off" aria-label="Screen">
+      <h1 class="kiosk__title" id="screenTitle" tabindex="-1"></h1>
+      <p class="kiosk__prompt" id="screenPrompt"></p>
+
+      <div id="routeMap" class="routeMap" aria-hidden="true"></div>
+
+      <div class="kiosk__menu" role="listbox" aria-label="Options">
+        <div id="menu" class="menu"></div>
+      </div>
+
+      <div class="kiosk__footer">
+        <div class="kiosk__hint" id="hintBar">
+          Use Arrow keys to move, Enter to select, Backspace to go back, R to repeat.
+        </div>
+        <div class="kiosk__live" aria-live="polite" aria-atomic="true" id="srLive"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

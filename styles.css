@@ -1,0 +1,362 @@
+:root {
+  --bg: #0b1020;
+  --panel: #121a33;
+  --panel2: #0f1730;
+  --text: #f2f4ff;
+  --muted: #d0d8ff;
+  --accent: #7bdcff;
+  --danger: #ff7b7b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background: radial-gradient(1000px 600px at 50% 0%, #1a2550 0%, var(--bg) 60%);
+  color: var(--text);
+}
+
+.kiosk {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.kiosk__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 22px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.kiosk__brandTitle {
+  font-size: 20px;
+  letter-spacing: 0.4px;
+}
+
+.kiosk__brandSub {
+  margin-top: 6px;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.kiosk__status {
+  font-size: 14px;
+  color: var(--muted);
+  padding-top: 4px;
+}
+
+.kiosk__screen {
+  width: min(840px, 96vw);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+  overflow: hidden;
+}
+
+.kiosk__title {
+  margin: 0;
+  padding: 22px 22px 10px;
+  font-size: 34px;
+  line-height: 1.15;
+}
+
+.kiosk__prompt {
+  margin: 0;
+  padding: 0 22px 18px;
+  font-size: 18px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.menu {
+  display: grid;
+  gap: 12px;
+  padding: 0 22px 18px;
+}
+
+.menuItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 18px 18px;
+  font-size: 22px;
+  text-align: left;
+}
+
+.menuItem__meta {
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.menuItem.isActive {
+  border-color: rgba(123,220,255,0.85);
+  box-shadow: 0 0 0 4px rgba(123,220,255,0.18);
+  background: rgba(123,220,255,0.08);
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.kiosk__footer {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 14px 22px;
+}
+
+.kiosk__hint {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.kiosk__live {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Route Map */
+.routeMap {
+  display: none;
+  padding: 0 22px 18px;
+}
+
+.routeMap.isVisible {
+  display: block;
+}
+
+.routeMap__container {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.routeMap__title {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.routeMap__track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+.routeMap__station {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.routeMap__dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--panel);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.routeMap__station--end .routeMap__dot {
+  background: #4ade80;
+  box-shadow: 0 0 0 2px #4ade80;
+}
+
+.routeMap__label {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.routeMap__name {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+.routeMap__line {
+  flex: 1;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent) 0%, #4ade80 100%);
+  position: relative;
+}
+
+.routeMap__line::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid var(--accent);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+.routeMap__info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.routeMap__infoItem {
+  text-align: center;
+}
+
+.routeMap__infoLabel {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.routeMap__infoValue {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+/* Video Call UI */
+.videoCall {
+  padding: 0;
+}
+
+.videoCall__screen {
+  background: linear-gradient(180deg, #1a2550 0%, #0d1428 100%);
+  border: 2px solid rgba(123,220,255,0.3);
+  border-radius: 14px;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.videoCall__avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(123,220,255,0.2) 0%, rgba(123,220,255,0.05) 100%);
+  border: 3px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(123,220,255,0.2);
+}
+
+.videoCall__avatarIcon {
+  font-size: 48px;
+  filter: grayscale(100%) brightness(1.5);
+}
+
+.videoCall__status {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: center;
+}
+
+.videoCall__indicator {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.videoCall__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.videoCall__dot--animate {
+  animation: videoPulse 1.4s ease-in-out infinite;
+}
+
+.videoCall__dot--animate:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.videoCall__dot--animate:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes videoPulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Loading State */
+.kiosk__loading {
+  display: none;
+  text-align: center;
+  padding: 10px 0;
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.kiosk__loading.isVisible {
+  display: block;
+}
+
+.kiosk__loadingDots {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.kiosk__loadingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: loadingPulse 1.4s ease-in-out infinite;
+}
+
+.kiosk__loadingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.kiosk__loadingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loadingPulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
