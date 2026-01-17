@@ -983,7 +983,7 @@
       // On ticket type screen, announce "ticket type, amount X" for ticket items
       else if (state.screen === 'type' && item.ticketLabel !== undefined) {
         if (item.quantity === 0) {
-          announcement = t('none');
+          announcement = `${item.label}, ${t('none')}`;
         } else {
           const qtyFormatted = formatNumberForTTS(item.quantity);
           announcement = `${item.label}, ${t('amount')} ${qtyFormatted}`;
