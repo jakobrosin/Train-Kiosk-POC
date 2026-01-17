@@ -706,6 +706,18 @@
     playTone(1000, 0.75, 'sine', 0.3);
   }
 
+  function playTTSOnSound() {
+    // Pleasant ascending "ding-dong" for TTS enabled
+    playTone(800, 0.15, 'sine', 0.2); // Lower note
+    setTimeout(() => playTone(1000, 0.2, 'sine', 0.2), 120); // Higher note
+  }
+
+  function playTTSOffSound() {
+    // Gentle descending "dong-ding" for TTS disabled
+    playTone(1000, 0.15, 'sine', 0.2); // Higher note
+    setTimeout(() => playTone(800, 0.2, 'sine', 0.2), 120); // Lower note
+  }
+
   // Route map display
   function showRouteMap(departure, arrival, time, platform, tickets, total) {
     const ticketSummary = getSelectedTicketsSummary();
@@ -1864,6 +1876,13 @@
   function toggleTTS() {
     speechEnabled = !speechEnabled;
     const message = speechEnabled ? t('ttsEnabled') : t('ttsDisabled');
+
+    // Play appropriate sound effect
+    if (speechEnabled) {
+      playTTSOnSound();
+    } else {
+      playTTSOffSound();
+    }
 
     // Always update the screen reader live region
     el.srLive.textContent = message;
