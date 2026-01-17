@@ -1007,7 +1007,7 @@
       locationText: 'Interactive demo',
       stepText: '',
       title: 'Select Language / Vali keel',
-      prompt: 'Please select your language. / Palun valige oma keel.',
+      prompt: 'Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice. / Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S, et süsteemi hääl sisse või välja lülitada.',
       menuItems: [
         {
           label: 'English',
