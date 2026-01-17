@@ -156,6 +156,9 @@
       cafeteria: 'Cafeteria',
       bathroom: 'Bathroom',
       stationExit: 'Station exit',
+      selver: 'Selver',
+      hesburger: 'Hesburger',
+      pirukabaar: 'Pirukabaar',
       haveNiceJourney: 'Have a nice journey. Accessibility mode disabled.',
 
       // Platform directions
@@ -168,6 +171,10 @@
       cafeteriaDirections: 'The cafeteria is approximately 40 metres to your right. Follow the tactile flooring to the 1st junction and turn right. The cafeteria entrance is 20 metres ahead on your left.',
       bathroomDirections: 'The bathroom is approximately 30 metres straight ahead. Follow the tactile flooring past the 1st junction. The bathroom entrance is on your right, marked with a tactile sign on the left of the door.',
       exitDirections: 'The station exit is approximately 60 metres behind you. Turn around and follow the tactile flooring. The main exit doors open automatically.',
+      selverDirections: 'Selver grocery store is approximately 70 metres to your left. Follow the tactile flooring to the 2nd junction and turn left. Continue straight for 40 metres. The store entrance is on your right.',
+      hesburgerDirections: 'Hesburger is approximately 90 metres straight ahead. Follow the tactile flooring past the 2nd junction. Continue for 50 metres. The restaurant entrance is on your left, with automatic doors.',
+      pirukabaarDirections: 'Pirukabaar is approximately 35 metres to your right. Follow the tactile flooring to the 1st junction and turn right. Continue for 15 metres. The entrance is on your right.',
+      pirukabaarSpecial: 'Cabbage pies are 30 percent off only today!',
 
       restartDemo: 'Restart demo',
 
@@ -341,6 +348,9 @@
       cafeteria: 'Kohvik',
       bathroom: 'Tualett',
       stationExit: 'Jaama väljapääs',
+      selver: 'Selver',
+      hesburger: 'Hesburger',
+      pirukabaar: 'Pirukabaar',
       haveNiceJourney: 'Head reisi. Ligipääsetavuse režiim välja lülitatud.',
 
       // Platform directions (using Estonian number words for Finnish TTS)
@@ -353,6 +363,10 @@
       cafeteriaDirections: 'Kohvik asub umbes neljakümne meetri kaugusel paremal. Järgige juhtteed esimese ristmikuni ja pöörake paremale. Kohviku sissepääs on kahekümne meetri kaugusel vasakul.',
       bathroomDirections: 'Tualett asub umbes kolmekümne meetri kaugusel otse ees. Järgige juhtteed esimesest ristmikust mööda. Tualeti sissepääs on paremal, tähistatud taktiilse sildiga uksest vasakul.',
       exitDirections: 'Jaama väljapääs asub umbes kuuekümne meetri kaugusel teie selja taga. Pöörake ümber ja järgige juhtteed. Peauksed avanevad automaatselt.',
+      selverDirections: 'Selveri kauplus asub umbes seitsmekümne meetri kaugusel vasakul. Järgige juhtteed teise ristmikuni ja pöörake vasakule. Jätkake otse nelikümmend meetrit. Kaupluse sissepääs on paremal.',
+      hesburgerDirections: 'Hesburger asub umbes üheksakümne meetri kaugusel otse ees. Järgige juhtteed teisest ristmikust mööda. Jätkake viiskümmend meetrit. Restorani sissepääs on vasakul, automaatuksed.',
+      pirukabaarDirections: 'Pirukabaar asub umbes kolmekümne viie meetri kaugusel paremal. Järgige juhtteed esimese ristmikuni ja pöörake paremale. Jätkage viisteist meetrit. Sissepääs on paremal.',
+      pirukabaarSpecial: 'Kapsapirukad on täna ainult kolmkümmend protsenti soodsam!',
 
       restartDemo: 'Taaskäivita demo',
 
@@ -757,6 +771,14 @@
     // Gentle descending "dong-ding" for TTS disabled
     playTone(1000, 0.15, 'sine', 0.2); // Higher note
     setTimeout(() => playTone(800, 0.2, 'sine', 0.2), 120); // Lower note
+  }
+
+  function playFanfareSound() {
+    // Celebratory fanfare: ascending triumphant melody
+    playTone(523, 0.12, 'sine', 0.25); // C5
+    setTimeout(() => playTone(659, 0.12, 'sine', 0.25), 120); // E5
+    setTimeout(() => playTone(784, 0.12, 'sine', 0.25), 240); // G5
+    setTimeout(() => playTone(1047, 0.35, 'sine', 0.3), 360); // C6 (longer, triumphant)
   }
 
   // Route map display
@@ -1883,6 +1905,18 @@
           onSelect: () => showDirections('platform')
         },
         {
+          label: `${t('selver')} 🛒`,
+          onSelect: () => showDirections('selver')
+        },
+        {
+          label: `${t('hesburger')} 🍔`,
+          onSelect: () => showDirections('hesburger')
+        },
+        {
+          label: `${t('pirukabaar')} 🥧`,
+          onSelect: () => showDirections('pirukabaar')
+        },
+        {
           label: t('cafeteria'),
           onSelect: () => showDirections('cafeteria')
         },
@@ -1908,32 +1942,84 @@
   function showDirections(destination) {
     state.screen = 'directions';
     let directions;
+    let titleText;
 
     switch (destination) {
       case 'platform':
         directions = getPlatformDirections(state.platform);
+        titleText = `${t('platform')} ${state.platform}`;
         break;
       case 'cafeteria':
         directions = t('cafeteriaDirections');
+        titleText = t('cafeteria');
         break;
       case 'bathroom':
         directions = t('bathroomDirections');
+        titleText = t('bathroom');
         break;
       case 'exit':
         directions = t('exitDirections');
+        titleText = t('stationExit');
+        break;
+      case 'selver':
+        directions = t('selverDirections');
+        titleText = t('selver');
+        break;
+      case 'hesburger':
+        directions = t('hesburgerDirections');
+        titleText = t('hesburger');
+        break;
+      case 'pirukabaar':
+        directions = t('pirukabaarDirections');
+        titleText = t('pirukabaar');
         break;
       default:
         directions = '';
+        titleText = '';
     }
 
+    // Special handling for pirukabaar: play fanfare and announce special
+    if (destination === 'pirukabaar') {
+      playFanfareSound();
+      const specialMsg = `${t('pirukabaarSpecial')} ${directions} ${t('haveNiceJourney')}`;
+
+      setScreen({
+        locationText: t('baltiJaam'),
+        stepText: t('completed'),
+        title: titleText,
+        prompt: specialMsg,
+        menuItems: [
+          {
+            label: t('back'),
+            meta: t('backspace'),
+            onSelect: () => finalMessage()
+          },
+          {
+            label: t('restartDemo'),
+            meta: 'Enter',
+            onSelect: () => {
+              speechEnabled = true;
+              resetState();
+              languageScreen();
+            }
+          }
+        ],
+        focusTitle: true,
+        speakPrompt: true,
+      });
+
+      // Turn speech off after announcing directions
+      setTimeout(() => { speechEnabled = false; }, 250);
+      return;
+    }
+
+    // Standard handling for other destinations
     const msg = `${directions} ${t('haveNiceJourney')}`;
 
-    // Platform number in title uses visual number, but announcements use formatted
-    const platformNum = formatNumberForTTS(state.platform);
     setScreen({
       locationText: t('baltiJaam'),
       stepText: t('completed'),
-      title: destination === 'platform' ? `${t('platform')} ${state.platform}` : t(destination === 'cafeteria' ? 'cafeteria' : destination === 'bathroom' ? 'bathroom' : 'stationExit'),
+      title: titleText,
       prompt: msg,
       menuItems: [
         {
