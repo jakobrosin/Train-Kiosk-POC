@@ -1077,6 +1077,11 @@
       .replaceAll("'", '&#039;');
   }
 
+  function stripEmojis(text) {
+    // Remove emojis and other symbols for TTS announcements
+    return text.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+  }
+
   function clamp(n, min, max) {
     return Math.max(min, Math.min(max, n));
   }
@@ -1111,20 +1116,22 @@
 
       // On language screen, speak each option in its respective language
       if (state.screen === 'lang' && item.langCode) {
-        announcement = item.label;
+        announcement = stripEmojis(item.label);
         options.forceLang = item.langCode === 'en' ? 'en-US' : 'fi-FI';
       }
       // On ticket type screen, announce "ticket type, amount X" for ticket items
       else if (state.screen === 'type' && item.ticketLabel !== undefined) {
+        const labelClean = stripEmojis(item.label);
         if (item.quantity === 0) {
-          announcement = `${item.label}, ${t('none')}`;
+          announcement = `${labelClean}, ${t('none')}`;
         } else {
           const qtyFormatted = formatNumberForTTS(item.quantity);
-          announcement = `${item.label}, ${t('amount')} ${qtyFormatted}`;
+          announcement = `${labelClean}, ${t('amount')} ${qtyFormatted}`;
         }
       } else {
+        const labelClean = stripEmojis(item.label);
         const meta = item.meta ? `, ${item.meta}` : '';
-        announcement = `${item.label}${meta}`;
+        announcement = `${labelClean}${meta}`;
       }
       // Do not overwrite the required prompt (R should still repeat the prompt).
       speakAsync(announcement, options);
