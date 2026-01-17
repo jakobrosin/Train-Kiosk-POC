@@ -1016,8 +1016,8 @@
     state.screen = 'lang';
 
     // Bilingual prompt text
-    const englishPrompt = 'Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice.';
-    const estonianPrompt = 'Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S, et süsteemi hääl sisse või välja lülitada.';
+    const englishPrompt = 'Accessibility mode enabled. Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice.';
+    const estonianPrompt = 'Ligipääsetavuse režiim sisse lülitatud. Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S, et süsteemi hääl sisse või välja lülitada.';
     const fullPrompt = `${englishPrompt} / ${estonianPrompt}`;
 
     // Always show in English first since user hasn't chosen yet
