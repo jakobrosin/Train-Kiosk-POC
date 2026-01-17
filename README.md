@@ -85,70 +85,6 @@ This project demonstrates the fundamental keyboard navigation patterns and user 
 - JavaScript enabled
 - Audio enabled for text-to-speech and sound effects
 
-## Keyboard Controls
-
-| Key | Action |
-|-----|--------|
-| **↑** **↓** | Navigate menu items (Up/Down) |
-| **←** **→** | Adjust date/time or ticket quantities (Left/Right) |
-| **Enter** | Select/Confirm current option |
-| **Backspace** | Go back to previous screen |
-| **R** | Repeat last spoken message |
-
-## Design Philosophy
-
-### Kiosk-Like UI
-- Railroad stripe accents and train iconography
-- Professional dark color scheme
-- Corner accent indicators typical of physical kiosks
-- Large, touch-friendly buttons
-- Clear visual hierarchy
-
-### Accessibility-First Approach
-This demo prioritizes demonstrating:
-- Logical keyboard navigation flow
-- Consistent announcement patterns
-- Progressive disclosure of instructions
-- Clear system state feedback
-- Multi-sensory feedback (visual, audio, tactile-like)
-
-### Known Limitations
-As a proof of concept, this demo:
-- Does not process real payments
-- Does not connect to actual train schedules
-- Does not include all accessibility features of a production system
-- May not handle all edge cases
-- Uses simulated data for demonstration purposes
-
-## File Structure
-
-```
-.
-├── index.html          # Main HTML structure
-├── app.js              # Application logic and interactions
-├── styles.css          # UI styling and kiosk design
-└── README.md           # This file
-```
-
-## Localization
-
-The demo includes comprehensive bilingual support:
-
-- **Estonian (et)**: Full informal voice, proper grammatical cases
-- **English (en)**: Clear, professional language
-
-Translations are managed in the `translations` object in `app.js`.
-
-## Future Enhancements (Out of Scope for POC)
-
-- Real-time train schedule integration
-- Payment gateway integration
-- Extended accessibility testing with real users
-- Mobile responsive improvements
-- Additional language support
-- Persistent user preferences
-- Analytics and usage tracking
-
 ## Credits
 
 **Created by:** Jakob Rosin
@@ -163,7 +99,3 @@ This project is intended for demonstration and educational purposes.
 ## Feedback & Contact
 
 For questions or feedback about this demo, please contact Jakob Rosin at [jakob@ligipaasuke.ee](mailto:jakob@ligipaasuke.ee) or visit [ligipääsuke.ee](https://ligipääsuke.ee).
-
----
-
-**Note:** This is a demonstration project showcasing specific interaction patterns and accessibility concepts. It is not intended to be a comprehensive or production-ready solution, but rather a foundation for discussion and further development of accessible kiosk interfaces.
