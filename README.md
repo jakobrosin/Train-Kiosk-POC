@@ -152,7 +152,8 @@ Translations are managed in the `translations` object in `app.js`.
 ## Credits
 
 **Created by:** Jakob Rosin
-**Website:** [jakobligipaasuke.ee](https://jakobligipaasuke.ee)
+**Website:** [ligipääsuke.ee](https://ligipääsuke.ee)
+**Email:** jakob@ligipaasuke.ee
 **Purpose:** Accessibility demonstration and proof of concept
 
 ## License
@@ -161,7 +162,7 @@ This project is intended for demonstration and educational purposes.
 
 ## Feedback & Contact
 
-For questions or feedback about this demo, please contact Jakob Rosin at [jakobligipaasuke.ee](https://jakobligipaasuke.ee).
+For questions or feedback about this demo, please contact Jakob Rosin at [jakob@ligipaasuke.ee](mailto:jakob@ligipaasuke.ee) or visit [ligipääsuke.ee](https://ligipääsuke.ee).
 
 ---
 
