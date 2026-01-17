@@ -100,8 +100,10 @@
       student: 'Student',
       senior: 'Senior',
       child: 'Child',
+      disabled: 'Disabled passenger',
       quantity: 'Quantity',
       amount: 'amount',
+      none: 'none',
       useLeftRight: 'Left and Right arrows adjust quantity.',
 
       // Review
@@ -278,8 +280,10 @@
       student: 'Õpilane',
       senior: 'eakas',
       child: 'Laps',
+      disabled: 'Puudega reisija',
       quantity: 'Kogus',
       amount: 'kogus',
+      none: 'pileteid pole',
       useLeftRight: 'Vasak ja parem nooled muudavad kogust.',
 
       // Review
@@ -791,13 +795,14 @@
       'Student': 0,
       'Senior': 0,
       'Child': 0,
+      'Disabled': 0,
     },
     // Progressive instructions
     screenVisitCount: 0,
   };
 
   function resetQuantities() {
-    state.quantities = { 'Adult': 0, 'Student': 0, 'Senior': 0, 'Child': 0 };
+    state.quantities = { 'Adult': 0, 'Student': 0, 'Senior': 0, 'Child': 0, 'Disabled': 0 };
   }
 
   function resetState() {
@@ -873,6 +878,7 @@
       { label: 'Student', price: 7 },
       { label: 'Senior', price: 6 },
       { label: 'Child', price: 5 },
+      { label: 'Disabled', price: 5 },
     ]
   };
 
@@ -976,7 +982,7 @@
       }
       // On ticket type screen, announce "ticket type, amount X" for ticket items
       else if (state.screen === 'type' && item.ticketLabel !== undefined) {
-        const qtyFormatted = formatNumberForTTS(item.quantity);
+        const qtyFormatted = item.quantity === 0 ? t('none') : formatNumberForTTS(item.quantity);
         announcement = `${item.label}, ${t('amount')} ${qtyFormatted}`;
       } else {
         const meta = item.meta ? `, ${item.meta}` : '';
@@ -1075,6 +1081,7 @@
 
   function mainMenu() {
     state.screen = 'main';
+    activeIndex = 0;
     const instructions = getInstructions();
     const prompt = `${t('welcomeToStation')}${instructions ? ' ' + instructions : ''}`;
     setScreen({
@@ -1185,8 +1192,7 @@
   function departureStation() {
     state.screen = 'dep';
     state.departure = state.departure || 'Tallinn';
-    activeIndex = data.stations.indexOf(state.departure);
-    if (activeIndex < 0) activeIndex = 0;
+    activeIndex = 0;
 
     const instructions = getInstructions();
     const prompt = `${t('chooseDepartureStation')}${instructions ? ' ' + instructions : ''}`;
@@ -1220,7 +1226,7 @@
     state.screen = 'arr';
     const arrivals = data.stations.filter((s) => s !== state.departure);
     if (!state.arrival || state.arrival === state.departure) state.arrival = arrivals[0];
-    activeIndex = Math.max(0, arrivals.indexOf(state.arrival));
+    activeIndex = 0;
 
     const instructions = getInstructions();
     const prompt = `${t('chooseArrivalStation')}${instructions ? ' ' + instructions : ''}`;
@@ -1253,6 +1259,7 @@
 
   function returnTicketQuestion() {
     state.screen = 'return';
+    activeIndex = 0;
     const instructions = getInstructions();
     const prompt = `${t('wantReturnTicket')}${instructions ? ' ' + instructions : ''}`;
 
@@ -1475,7 +1482,7 @@
 
   // Get translated ticket type label
   function getTicketTypeLabel(type) {
-    const map = { 'Adult': 'adult', 'Student': 'student', 'Senior': 'senior', 'Child': 'child' };
+    const map = { 'Adult': 'adult', 'Student': 'student', 'Senior': 'senior', 'Child': 'child', 'Disabled': 'disabled' };
     return t(map[type] || type);
   }
 
@@ -1492,7 +1499,7 @@
       const itemTotal = qty * item.price;
       return {
         label: getTicketTypeLabel(item.label),
-        meta: qty > 0 ? `${qty} × ${item.price} € = ${itemTotal} €` : `${item.price} €`,
+        meta: qty > 0 ? `${qty} × ${item.price} € = ${itemTotal} €` : `${item.price} € (${t('none')})`,
         ticketLabel: item.label,
         quantity: qty,
         onSelect: () => {
@@ -1539,6 +1546,13 @@
       speakPrompt,
       hintBarText: t('hintBarType'),
     });
+
+    // Always start at first option when first entering the screen
+    if (speakPrompt) {
+      activeIndex = 0;
+      focusActiveItem();
+      updateActiveVisual();
+    }
   }
 
   function adjustQuantity(delta) {
@@ -1556,7 +1570,7 @@
       const savedIndex = activeIndex;
       state.quantities[ticketLabel] = newQty;
       playQuantitySound();
-      const qtyFormatted = formatNumberForTTS(newQty);
+      const qtyFormatted = newQty === 0 ? t('none') : formatNumberForTTS(newQty);
       speakAsync(qtyFormatted, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
       // Re-render to update display without speaking prompt
       ticketType({ speakPrompt: false });
@@ -1569,6 +1583,7 @@
 
   function review() {
     state.screen = 'review';
+    activeIndex = 0;
     const totalTickets = getTotalTickets();
     const totalPrice = getTotalPrice();
     const ticketSummary = getSelectedTicketsSummary();
