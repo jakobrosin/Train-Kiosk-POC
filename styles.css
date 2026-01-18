@@ -239,6 +239,45 @@ html, body {
   border-color: rgba(78,222,128,0.4); /* Success green tint */
 }
 
+/* Info text menu items (non-interactive explanatory text) */
+.menuItem.isInfoText {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.08);
+  opacity: 0.9;
+  pointer-events: none;
+  font-size: 18px;
+  line-height: 1.5;
+  padding: 16px 24px;
+  cursor: default;
+}
+
+.menuItem.isInfoText::before {
+  display: none; /* No accent bar for info text */
+}
+
+/* Keyboard shortcut list items (non-actionable, navigable) */
+.menuItem.isKeyboardShortcut {
+  background: rgba(255,255,255,0.015);
+  border-color: rgba(255,255,255,0.1);
+  cursor: default;
+  font-size: 16px;
+  padding-left: 32px; /* Indent for list appearance */
+}
+
+.menuItem.isKeyboardShortcut::before {
+  width: 3px; /* Thinner accent for list items */
+  opacity: 0.3;
+}
+
+.menuItem.isKeyboardShortcut.isActive::before {
+  opacity: 0.6; /* Less prominent when focused */
+}
+
+.menuItem.isKeyboardShortcut.isActive {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(94,179,255,0.3);
+}
+
 .kiosk__footer {
   border-top: 2px solid var(--border);
   padding: 18px 28px;
@@ -699,57 +738,6 @@ html, body {
 .kiosk__category--time { color: var(--warning); }
 .kiosk__category--payment { color: var(--success); }
 .kiosk__category--review { color: var(--accent-bright); }
-
-/* Keyboard shortcuts overlay */
-.kiosk__shortcuts {
-  position: fixed;
-  bottom: 80px;
-  right: 28px;
-  background: rgba(15,22,41,0.95);
-  border: 2px solid var(--accent);
-  border-radius: 12px;
-  padding: 16px;
-  max-width: 280px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.3s, transform 0.3s;
-  pointer-events: none;
-  z-index: 999;
-}
-
-.kiosk__shortcuts.isVisible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.kiosk__shortcutTitle {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.kiosk__shortcutItem {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-.kiosk__shortcutKey {
-  background: rgba(94,179,255,0.2);
-  border: 1px solid var(--accent);
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: 600;
-  min-width: 32px;
-  text-align: center;
-}
 
 /* Platform number badges */
 .menuItem__platform {
