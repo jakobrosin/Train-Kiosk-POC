@@ -11,7 +11,6 @@
     routeMap: document.getElementById('routeMap'),
     errorAlert: document.getElementById('errorAlert'),
     errorAlertText: document.getElementById('errorAlertText'),
-    shortcutsOverlay: document.getElementById('shortcutsOverlay'),
     kioskScreen: document.getElementById('kioskScreen'),
     screenCategory: document.getElementById('screenCategory'),
   };
@@ -54,6 +53,21 @@
       toggleVoice: 'Toggle voice',
       highContrast: 'High contrast',
       hideHelp: 'Hide help',
+
+      // Accessibility help screen
+      accessibilityHelpTitle: 'Accessibility Help',
+      accessibilityHelpIntro: 'This interface is designed for keyboard navigation. If you use a screen reader, turn on browse mode.',
+      exitHelp: 'Exit help',
+
+      // Keyboard shortcuts (for help screen list items)
+      arrowKeysNav: 'Up and Down arrows – Move focus between menu items',
+      arrowKeysAdjust: 'Left and Right arrows – Adjust values (date, time, quantity)',
+      enterKey: 'Enter – Confirm selection',
+      backspaceKey: 'Backspace – Go back to previous step',
+      rKey: 'R – Repeat last message',
+      sKey: 'S – Toggle system voice on or off (use with screen reader)',
+      cKey: 'C – Toggle high contrast mode on or off',
+      hKey: 'H – Open or close accessibility help',
 
       // Category labels
       destinationSelection: 'Destination Selection',
@@ -274,6 +288,21 @@
       toggleVoice: 'Lülita hääl',
       highContrast: 'Kõrge kontrast',
       hideHelp: 'Peida abi',
+
+      // Accessibility help screen
+      accessibilityHelpTitle: 'Ligipääsetavuse abi',
+      accessibilityHelpIntro: 'See demo kasutajaliides on loodud klaviatuuriga navigeerimiseks. Kui kasutad ekraanilugejat, lülita sisse sirviimisrežiim (browse mode).',
+      exitHelp: 'Välju abist',
+
+      // Keyboard shortcuts (for help screen list items)
+      arrowKeysNav: 'Üles ja alla nooled – liiguta fookust menüü kirjete vahel',
+      arrowKeysAdjust: 'Vasakule ja paremale nooled – muuda väärtusi (kuupäev, kellaaeg, kogus)',
+      enterKey: 'Enter – kinnita valik',
+      backspaceKey: 'Backspace – mine eelmisele sammule tagasi',
+      rKey: 'R – korda viimast sõnumit',
+      sKey: 'S – lülita süsteemi hääl sisse või välja (kasuta ekraanilugejaga)',
+      cKey: 'C – lülita kõrge kontrasti resiim sisse või välja',
+      hKey: 'H – ava või sulge ligipääsetavuse abi',
 
       // Category labels
       destinationSelection: 'Sihtkoha valik',
@@ -893,39 +922,14 @@
   }
 
   // Keyboard shortcuts overlay toggle
-  let shortcutsVisible = false;
   function toggleKeyboardHelp() {
-    shortcutsVisible = !shortcutsVisible;
-    const message = shortcutsVisible ? t('keyboardHelpVisible') : t('keyboardHelpHidden');
-
-    // Update keyboard shortcut labels based on current language
-    updateKeyboardShortcutLabels();
-
-    // Toggle visibility
-    if (shortcutsVisible) {
-      el.shortcutsOverlay.classList.add('isVisible');
+    // If already in help screen, return to previous screen
+    if (state.screen === 'accessibilityHelp') {
+      returnFromHelp();
     } else {
-      el.shortcutsOverlay.classList.remove('isVisible');
+      // Open help screen
+      accessibilityHelpScreen();
     }
-
-    // Update screen reader and announce
-    el.srLive.textContent = message;
-    if (speechEnabled) {
-      speakAsync(message, { interrupt: true, rememberSpoken: false, rememberPrompt: false });
-    }
-  }
-
-  // Update keyboard shortcut labels
-  function updateKeyboardShortcutLabels() {
-    document.getElementById('shortcutTitle').textContent = t('keyboardShortcuts');
-    document.getElementById('shortcutNavigate').textContent = t('navigate');
-    document.getElementById('shortcutAdjust').textContent = t('adjustValue');
-    document.getElementById('shortcutSelect').textContent = t('select');
-    document.getElementById('shortcutBack').textContent = t('goBack');
-    document.getElementById('shortcutRepeat').textContent = t('repeat');
-    document.getElementById('shortcutToggleVoice').textContent = t('toggleVoice');
-    document.getElementById('shortcutHighContrast').textContent = t('highContrast');
-    document.getElementById('shortcutHideHelp').textContent = t('hideHelp');
   }
 
   // Route map display
@@ -1007,6 +1011,9 @@
     },
     // Progressive instructions
     screenVisitCount: 0,
+    // Position tracking for help screen returns
+    returnToScreen: null,
+    returnToActiveIndex: 0,
   };
 
   function resetQuantities() {
@@ -1026,6 +1033,8 @@
     state.returnTime = null;
     state.returnPlatform = null;
     state.screenVisitCount = 0;
+    state.returnToScreen = null;
+    state.returnToActiveIndex = 0;
   }
 
   function getTotalTickets() {
@@ -1245,6 +1254,14 @@
         btn.classList.add('hasQuantity');
       }
 
+      // Add info text and keyboard shortcut classes
+      if (item.isInfoText) {
+        btn.classList.add('isInfoText');
+      }
+      if (item.isKeyboardShortcut) {
+        btn.classList.add('isKeyboardShortcut');
+      }
+
       btn.tabIndex = -1;
       btn.dataset.index = String(idx);
       btn.innerHTML = `
@@ -1389,10 +1406,6 @@
     if (el.hintBar) {
       el.hintBar.textContent = t('hintBar');
     }
-    // Also update keyboard shortcuts if visible
-    if (shortcutsVisible) {
-      updateKeyboardShortcutLabels();
-    }
   }
 
   // Screens
@@ -1472,7 +1485,7 @@
         { label: t('checkCard'), onSelect: () => notAvailable(t('checkCard')) },
         { label: t('viewSchedules'), onSelect: () => notAvailable(t('viewSchedules')) },
         { label: t('contactStaff'), onSelect: () => contactStaff() },
-        { label: t('accessibilityHelp'), onSelect: () => notAvailable(t('accessibilityHelp')) },
+        { label: t('accessibilityHelp'), onSelect: () => accessibilityHelpScreen() },
       ],
       focusTitle: false,
       speakPrompt: false, // We'll speak after the whistle
@@ -1498,6 +1511,111 @@
       focusTitle: true,
       speakPrompt: true,
     });
+  }
+
+  function accessibilityHelpScreen() {
+    // Save current position for return
+    state.returnToScreen = state.screen;
+    state.returnToActiveIndex = activeIndex;
+
+    state.screen = 'accessibilityHelp';
+    activeIndex = 0;
+
+    const menuItems = [
+      {
+        label: t('accessibilityHelpIntro'),
+        isInfoText: true,
+        onSelect: () => {} // No action
+      },
+      {
+        label: t('arrowKeysNav'),
+        isKeyboardShortcut: true,
+        onSelect: () => {} // No action
+      },
+      {
+        label: t('arrowKeysAdjust'),
+        isKeyboardShortcut: true,
+        onSelect: () => {} // No action
+      },
+      {
+        label: t('enterKey'),
+        isKeyboardShortcut: true,
+        onSelect: () => {} // No action
+      },
+      {
+        label: t('backspaceKey'),
+        isKeyboardShortcut: true,
+        onSelect: () => {} // No action
+      },
+      {
+        label: t('rKey'),
+        isKeyboardShortcut: true,
+        onSelect: () => {} // No action
+      },
+      {
+        label: t('sKey'),
+        isKeyboardShortcut: true,
+        onSelect: () => {} // No action
+      },
+      {
+        label: t('cKey'),
+        isKeyboardShortcut: true,
+        onSelect: () => {} // No action
+      },
+      {
+        label: t('hKey'),
+        isKeyboardShortcut: true,
+        onSelect: () => {} // No action
+      },
+      {
+        label: t('exitHelp'),
+        onSelect: () => returnFromHelp()
+      }
+    ];
+
+    setScreen({
+      locationText: t('baltiJaam'),
+      stepText: t('accessibilityHelp'),
+      title: t('accessibilityHelpTitle'),
+      prompt: t('accessibilityHelpIntro'),
+      menuItems,
+      focusTitle: true,
+      speakPrompt: true,
+    });
+  }
+
+  function returnFromHelp() {
+    // Restore previous screen
+    const previousScreen = state.returnToScreen;
+    const previousIndex = state.returnToActiveIndex;
+
+    // Clear tracking
+    state.returnToScreen = null;
+    state.returnToActiveIndex = 0;
+
+    // Navigate back to saved screen
+    switch (previousScreen) {
+      case 'boot': bootScreen(); break;
+      case 'main': mainMenu(); break;
+      case 'dep': departureStation(); break;
+      case 'arr': arrivalStation(); break;
+      case 'return': returnTicketQuestion(); break;
+      case 'time': departureTime(); break;
+      case 'returnTime': returnTime(); break;
+      case 'type': ticketType(); break;
+      case 'review': review(); break;
+      case 'pay': paymentInstruction(); break;
+      case 'done': finalMessage(); break;
+      case 'directions': showDirections(); break;
+      case 'contact': contactStaff(); break;
+      default: mainMenu(); break;
+    }
+
+    // Restore focus position after screen renders
+    setTimeout(() => {
+      activeIndex = previousIndex;
+      updateActive();
+    }, 50);
   }
 
   function showVideoCallUI() {
@@ -1583,7 +1701,11 @@
       }
     }));
 
-    // Add cancel transaction button
+    // Add help and cancel buttons
+    menuItems.push({
+      label: t('accessibilityHelp'),
+      onSelect: () => accessibilityHelpScreen()
+    });
     menuItems.push({
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
@@ -1619,7 +1741,11 @@
       }
     }));
 
-    // Add cancel transaction button
+    // Add help and cancel buttons
+    menuItems.push({
+      label: t('accessibilityHelp'),
+      onSelect: () => accessibilityHelpScreen()
+    });
     menuItems.push({
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
@@ -1664,7 +1790,11 @@
       }
     ];
 
-    // Add cancel transaction button
+    // Add help and cancel buttons
+    menuItems.push({
+      label: t('accessibilityHelp'),
+      onSelect: () => accessibilityHelpScreen()
+    });
     menuItems.push({
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
@@ -1735,14 +1865,18 @@
       }
     }));
 
-    // Add cancel transaction button
+    // Add help and cancel buttons
+    const helpButton = {
+      label: t('accessibilityHelp'),
+      onSelect: () => accessibilityHelpScreen()
+    };
     const cancelButton = {
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     };
 
-    // Combine: dates + separator + times + cancel
-    const menuItems = [...dateItems, separator, ...timeItems, cancelButton];
+    // Combine: dates + separator + times + help + cancel
+    const menuItems = [...dateItems, separator, ...timeItems, helpButton, cancelButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -1858,14 +1992,18 @@
       }
     }));
 
-    // Add cancel transaction button
+    // Add help and cancel buttons
+    const helpButton = {
+      label: t('accessibilityHelp'),
+      onSelect: () => accessibilityHelpScreen()
+    };
     const cancelButton = {
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     };
 
-    // Combine: dates + separator + times + cancel
-    const menuItems = [...dateItems, separator, ...timeItems, cancelButton];
+    // Combine: dates + separator + times + help + cancel
+    const menuItems = [...dateItems, separator, ...timeItems, helpButton, cancelButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -1972,7 +2110,12 @@
       });
     }
 
-    // Add cancel transaction button
+    // Add help and cancel buttons
+    menuItems.push({
+      label: t('accessibilityHelp'),
+      isActionButton: true,
+      onSelect: () => accessibilityHelpScreen()
+    });
     menuItems.push({
       label: t('cancelTransaction'),
       isActionButton: true,
@@ -2068,7 +2211,11 @@
       }
     ];
 
-    // Add cancel transaction button
+    // Add help and cancel buttons
+    menuItems.push({
+      label: t('accessibilityHelp'),
+      onSelect: () => accessibilityHelpScreen()
+    });
     menuItems.push({
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
