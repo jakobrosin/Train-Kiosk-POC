@@ -7,6 +7,43 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- Keyboard Shortcuts Overlay -->
+  <div class="kiosk__shortcuts" id="shortcutsOverlay">
+    <div class="kiosk__shortcutTitle" id="shortcutTitle">Keyboard Shortcuts</div>
+    <div class="kiosk__shortcutItem">
+      <span class="kiosk__shortcutKey">↑ ↓</span>
+      <span id="shortcutNavigate">Navigate</span>
+    </div>
+    <div class="kiosk__shortcutItem">
+      <span class="kiosk__shortcutKey">← →</span>
+      <span id="shortcutAdjust">Adjust value</span>
+    </div>
+    <div class="kiosk__shortcutItem">
+      <span class="kiosk__shortcutKey">Enter</span>
+      <span id="shortcutSelect">Select</span>
+    </div>
+    <div class="kiosk__shortcutItem">
+      <span class="kiosk__shortcutKey">⌫</span>
+      <span id="shortcutBack">Go back</span>
+    </div>
+    <div class="kiosk__shortcutItem">
+      <span class="kiosk__shortcutKey">R</span>
+      <span id="shortcutRepeat">Repeat</span>
+    </div>
+    <div class="kiosk__shortcutItem">
+      <span class="kiosk__shortcutKey">S</span>
+      <span id="shortcutToggleVoice">Toggle voice</span>
+    </div>
+    <div class="kiosk__shortcutItem">
+      <span class="kiosk__shortcutKey">C</span>
+      <span id="shortcutHighContrast">High contrast</span>
+    </div>
+    <div class="kiosk__shortcutItem">
+      <span class="kiosk__shortcutKey">H</span>
+      <span id="shortcutHideHelp">Hide help</span>
+    </div>
+  </div>
+
   <main class="kiosk" aria-label="Train ticket kiosk demo">
     <header class="kiosk__header">
       <div class="kiosk__brand">
@@ -16,7 +53,8 @@
       <div class="kiosk__status" aria-hidden="true" id="stepIndicator"></div>
     </header>
 
-    <section class="kiosk__screen" aria-live="off" aria-label="Screen">
+    <section class="kiosk__screen" aria-live="off" aria-label="Screen" id="kioskScreen">
+      <div class="kiosk__category" id="screenCategory"></div>
       <h1 class="kiosk__title" id="screenTitle" tabindex="-1"></h1>
       <p class="kiosk__prompt" id="screenPrompt"></p>
 
@@ -24,6 +62,11 @@
 
       <div class="kiosk__menu" role="listbox" aria-label="Options">
         <div id="menu" class="menu"></div>
+      </div>
+
+      <!-- Error Alert - positioned below menu, above footer -->
+      <div class="kiosk__errorAlert" id="errorAlert">
+        <div class="kiosk__errorAlert__text" id="errorAlertText"></div>
       </div>
 
       <div class="kiosk__footer">

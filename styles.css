@@ -188,17 +188,17 @@ html, body {
   overflow: hidden;
 }
 
-/* Subtle left accent bar */
+/* Subtle left accent bar - ENHANCED */
 .menuItem::before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 4px;
+  width: 6px; /* Increased from 4px */
   background: var(--accent);
-  opacity: 0;
-  transition: opacity 0.15s ease;
+  opacity: 0.15; /* Subtle resting state instead of 0 */
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
 }
 
 .menuItem:hover {
@@ -225,6 +225,18 @@ html, body {
 
 .menuItem.isActive::before {
   opacity: 1;
+  box-shadow: 2px 0 8px rgba(94,179,255,0.4); /* Add glow */
+}
+
+/* Action button visual grouping */
+.menuItem.isActionButton {
+  background: linear-gradient(135deg, rgba(94,179,255,0.12) 0%, rgba(94,179,255,0.06) 100%);
+  border-color: rgba(94,179,255,0.25);
+  margin-top: 12px; /* Spacing above action buttons */
+}
+
+.menuItem.isActionButton.isConfirm {
+  border-color: rgba(78,222,128,0.4); /* Success green tint */
 }
 
 .kiosk__footer {
@@ -246,6 +258,38 @@ html, body {
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+/* Error Alert - positioned below menu, above footer */
+.kiosk__errorAlert {
+  display: none;
+  background: rgba(15,22,41,0.98);
+  border: 3px solid var(--danger);
+  border-radius: 12px;
+  padding: 16px 28px 16px 68px;
+  margin: 0 28px 16px 28px;
+  box-shadow: 0 4px 16px rgba(255,107,107,0.4);
+  position: relative;
+}
+
+.kiosk__errorAlert.isVisible {
+  display: block;
+}
+
+.kiosk__errorAlert::before {
+  content: '⚠';
+  font-size: 28px;
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.kiosk__errorAlert__text {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--danger);
+  line-height: 1.4;
 }
 
 /* Route Map */
@@ -494,11 +538,14 @@ html, body {
   }
 }
 
-/* Loading State - minimal animation */
+/* Loading State - minimal animation - ENHANCED */
 .kiosk__loading {
   display: none;
   text-align: center;
-  padding: 12px 0;
+  padding: 20px 0;
+  background: linear-gradient(135deg, rgba(94,179,255,0.08) 0%, rgba(94,179,255,0.04) 100%);
+  border-radius: 12px;
+  margin: 16px 28px;
   color: var(--accent);
   font-size: 17px;
   font-weight: 500;
@@ -510,15 +557,16 @@ html, body {
 
 .kiosk__loadingDots {
   display: inline-flex;
-  gap: 8px;
+  gap: 12px; /* Increased from 8px */
   margin-left: 10px;
 }
 
 .kiosk__loadingDot {
-  width: 8px;
-  height: 8px;
+  width: 12px; /* Increased from 8px */
+  height: 12px;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 12px rgba(94,179,255,0.6); /* Add glow */
   animation: loadingPulse 1.6s ease-in-out infinite;
 }
 
@@ -539,19 +587,45 @@ html, body {
   }
 }
 
-/* Date display items - visual only, not keyboard-focusable */
+/* Payment success state */
+.kiosk__paymentSuccess {
+  background: linear-gradient(135deg, rgba(78,222,128,0.15) 0%, rgba(78,222,128,0.08) 100%);
+  border: 2px solid rgba(78,222,128,0.4);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 16px 28px;
+  text-align: center;
+  color: var(--success);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Date display items - visual only, not keyboard-focusable - ENHANCED */
 .menuItem.isDateDisplay {
-  background: rgba(255,255,255,0.02);
-  border-color: transparent;
+  background: rgba(255,255,255,0.01); /* Even lighter */
+  border-color: rgba(255,255,255,0.05); /* Very subtle border */
   cursor: default;
-  opacity: 0.7;
+  opacity: 0.6; /* Lower base opacity */
+  font-size: 20px; /* Slightly smaller than times */
   pointer-events: none;
 }
 
 .menuItem.isDateDisplay.isDateSelected {
   opacity: 1;
-  border-color: rgba(94,179,255,0.4);
-  background: linear-gradient(135deg, rgba(94,179,255,0.1) 0%, rgba(94,179,255,0.05) 100%);
+  border-color: rgba(94,179,255,0.5); /* Stronger blue */
+  background: linear-gradient(135deg, rgba(94,179,255,0.15) 0%, rgba(94,179,255,0.08) 100%);
+  font-size: 22px; /* Slightly larger when selected */
+}
+
+/* Disabled dates (for return time screen) */
+.menuItem.isDateDisplay.isDateDisabled {
+  opacity: 0.3;
+  border-color: transparent;
+  background: transparent;
+}
+
+.menuItem.isDateDisplay.isDateDisabled .menuItem__meta {
+  opacity: 0.5;
 }
 
 .menuItem.isDateDisplay::before {
@@ -564,16 +638,25 @@ html, body {
   opacity: 1;
 }
 
-/* Separator between dates and times */
+/* Separator between dates and times - ENHANCED */
 .menuItem.isSeparator {
   pointer-events: none;
-  padding: 8px 24px;
-  opacity: 0.3;
-  font-size: 14px;
-  text-align: center;
+  padding: 0;
+  height: 2px;
+  min-height: 2px;
   border: none;
-  background: transparent;
-  cursor: default;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(94,179,255,0.3) 50%,
+    transparent 100%
+  );
+  margin: 8px 0;
+  opacity: 1;
+  border-radius: 1px;
+}
+
+.menuItem.isSeparator span {
+  display: none;
 }
 
 /* Accessibility: Respect prefers-reduced-motion */
@@ -588,6 +671,195 @@ html, body {
   .menuItem.isActive {
     transition: none;
     transform: none;
+  }
+}
+
+/* Emoji styling for consistency */
+.menuItem__emoji {
+  display: inline-block;
+  width: 28px;
+  font-size: 22px;
+  margin-right: 8px;
+  filter: grayscale(0.2) brightness(1.1);
+}
+
+/* Screen category headers */
+.kiosk__category {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  margin: 0;
+  padding: 20px 28px 4px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.kiosk__category--destination { color: var(--accent); }
+.kiosk__category--time { color: var(--warning); }
+.kiosk__category--payment { color: var(--success); }
+.kiosk__category--review { color: var(--accent-bright); }
+
+/* Keyboard shortcuts overlay */
+.kiosk__shortcuts {
+  position: fixed;
+  bottom: 80px;
+  right: 28px;
+  background: rgba(15,22,41,0.95);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 16px;
+  max-width: 280px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.kiosk__shortcuts.isVisible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.kiosk__shortcutTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.kiosk__shortcutItem {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.kiosk__shortcutKey {
+  background: rgba(94,179,255,0.2);
+  border: 1px solid var(--accent);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  min-width: 32px;
+  text-align: center;
+}
+
+/* Platform number badges */
+.menuItem__platform {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(94,179,255,0.2) 0%, rgba(94,179,255,0.1) 100%);
+  border: 1px solid rgba(94,179,255,0.4);
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent-bright);
+  margin-left: 8px;
+}
+
+.menuItem.isActive .menuItem__platform {
+  background: linear-gradient(135deg, rgba(94,179,255,0.3) 0%, rgba(94,179,255,0.15) 100%);
+  border-color: rgba(94,179,255,0.6);
+  box-shadow: 0 0 8px rgba(94,179,255,0.3);
+}
+
+/* Quantity adjustment indicators */
+.menuItem.hasQuantity .menuItem__meta::before {
+  content: '◀ ';
+  opacity: 0.5;
+  font-size: 14px;
+}
+
+.menuItem.hasQuantity .menuItem__meta::after {
+  content: ' ▶';
+  opacity: 0.5;
+  font-size: 14px;
+}
+
+.menuItem.hasQuantity.isActive .menuItem__meta::before,
+.menuItem.hasQuantity.isActive .menuItem__meta::after {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.menuItem__quantity {
+  display: inline-block;
+  background: rgba(94,179,255,0.15);
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  margin: 0 6px;
+}
+
+/* Return journey visual distinction */
+.kiosk__screen.isReturnJourney .kiosk__header {
+  background: linear-gradient(180deg, rgba(78,222,128,0.06) 0%, transparent 100%);
+  border-bottom-color: rgba(78,222,128,0.6);
+}
+
+.kiosk__screen.isReturnJourney .kiosk__header::before {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--success) 0px,
+    var(--success) 12px,
+    transparent 12px,
+    transparent 24px
+  );
+}
+
+.kiosk__title.hasReturnIcon::before {
+  content: '↩';
+  display: inline-block;
+  margin-right: 12px;
+  color: var(--success);
+  font-size: 36px;
+}
+
+/* High contrast mode toggle */
+:root.highContrast {
+  --bg: #000000;
+  --panel: #0a0a0a;
+  --panel2: #050505;
+  --text: #ffffff;
+  --muted: #e0e0e0;
+  --border-strong: rgba(255,255,255,0.5);
+}
+
+:root.highContrast .menuItem {
+  border-width: 3px;
+}
+
+:root.highContrast .menuItem.isActive {
+  border-width: 4px;
+  box-shadow: 0 0 0 4px rgba(94,179,255,0.4);
+}
+
+/* Animated route preview - train on route line */
+.routeMap__train {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 20px;
+  animation: trainMove 3s ease-in-out infinite;
+}
+
+@keyframes trainMove {
+  0%, 100% { left: 0%; }
+  50% { left: calc(100% - 20px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .routeMap__train {
+    animation: none;
+    display: none;
   }
 }
 

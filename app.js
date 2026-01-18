@@ -9,6 +9,11 @@
     srLive: document.getElementById('srLive'),
     hintBar: document.getElementById('hintBar'),
     routeMap: document.getElementById('routeMap'),
+    errorAlert: document.getElementById('errorAlert'),
+    errorAlertText: document.getElementById('errorAlertText'),
+    shortcutsOverlay: document.getElementById('shortcutsOverlay'),
+    kioskScreen: document.getElementById('kioskScreen'),
+    screenCategory: document.getElementById('screenCategory'),
   };
 
   // Current language: 'en' or 'et'
@@ -28,6 +33,33 @@
       ttsEnabled: 'System voice enabled.',
       ttsDisabled: 'System voice disabled. Use your screen reader.',
       ttsToggleHint: 'Press S to toggle system voice on or off.',
+
+      // High contrast toggle
+      highContrastEnabled: 'High contrast mode enabled.',
+      highContrastDisabled: 'High contrast mode disabled.',
+      highContrastToggleHint: 'Press C to toggle high contrast mode.',
+
+      // Keyboard help toggle
+      keyboardHelpVisible: 'Keyboard help visible.',
+      keyboardHelpHidden: 'Keyboard help hidden.',
+      keyboardHelpToggleHint: 'Press H to toggle keyboard help visibility.',
+
+      // Keyboard shortcut labels
+      keyboardShortcuts: 'Keyboard Shortcuts',
+      navigate: 'Navigate',
+      adjustValue: 'Adjust value',
+      select: 'Select',
+      goBack: 'Go back',
+      repeat: 'Repeat',
+      toggleVoice: 'Toggle voice',
+      highContrast: 'High contrast',
+      hideHelp: 'Hide help',
+
+      // Category labels
+      destinationSelection: 'Destination Selection',
+      timeAndDate: 'Time & Date',
+      ticketSelection: 'Ticket Selection',
+      reviewAndPayment: 'Review & Payment',
 
       // Language selection
       languageTitle: 'Select Language',
@@ -222,6 +254,33 @@
       ttsDisabled: 'Süsteemi hääl välja lülitatud. Kasuta oma ekraanilugejat.',
       ttsToggleHint: 'Vajuta S, et süsteemi hääl sisse või välja lülitada.',
 
+      // High contrast toggle
+      highContrastEnabled: 'Kõrge kontrasti resiim sisse lülitatud.',
+      highContrastDisabled: 'Kõrge kontrasti resiim välja lülitatud.',
+      highContrastToggleHint: 'Vajuta C, et kõrge kontrastsusega resiimi sisse või välja lülitada.',
+
+      // Keyboard help toggle
+      keyboardHelpVisible: 'Klaviatuuri abi nähtaval.',
+      keyboardHelpHidden: 'Klaviatuuri abi peidetud.',
+      keyboardHelpToggleHint: 'Vajuta H, et klaviatuuri abi nähtavust muuta.',
+
+      // Keyboard shortcut labels
+      keyboardShortcuts: 'Klaviatuuri kiirklahvid',
+      navigate: 'Navigeeri',
+      adjustValue: 'Muuda väärtust',
+      select: 'Vali',
+      goBack: 'Mine tagasi',
+      repeat: 'Korda',
+      toggleVoice: 'Lülita hääl',
+      highContrast: 'Kõrge kontrast',
+      hideHelp: 'Peida abi',
+
+      // Category labels
+      destinationSelection: 'Sihtkoha valik',
+      timeAndDate: 'Kuupäev ja kellaaeg',
+      ticketSelection: 'Piletite valik',
+      reviewAndPayment: 'Ülevaade ja makse',
+
       // Language selection
       languageTitle: 'Vali keel',
       languagePrompt: 'Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S, et süsteemi hääl sisse või välja lülitada.',
@@ -291,7 +350,7 @@
       euros: 'eurot',
       adult: 'Täiskasvanu',
       student: 'Õpilane',
-      senior: 'eakas',
+      senior: 'Pensionär',
       child: 'Laps',
       disabled: 'Puudega reisija',
       quantity: 'Kogus',
@@ -800,6 +859,75 @@
     });
   }
 
+  // Error alert display - WCAG compliant (no auto-dismiss)
+  function showErrorAlert(message) {
+    el.errorAlertText.textContent = message;
+    el.errorAlert.classList.add('isVisible');
+  }
+
+  function hideErrorAlert() {
+    el.errorAlert.classList.remove('isVisible');
+    el.errorAlertText.textContent = '';
+  }
+
+  // High contrast mode toggle
+  let highContrastEnabled = false;
+  function toggleHighContrast() {
+    highContrastEnabled = !highContrastEnabled;
+    const message = highContrastEnabled ? t('highContrastEnabled') : t('highContrastDisabled');
+
+    // Toggle class on document root
+    if (highContrastEnabled) {
+      el.htmlRoot.classList.add('highContrast');
+      playTTSOnSound();
+    } else {
+      el.htmlRoot.classList.remove('highContrast');
+      playTTSOffSound();
+    }
+
+    // Update screen reader and announce
+    el.srLive.textContent = message;
+    if (speechEnabled) {
+      speakAsync(message, { interrupt: true, rememberSpoken: false, rememberPrompt: false });
+    }
+  }
+
+  // Keyboard shortcuts overlay toggle
+  let shortcutsVisible = false;
+  function toggleKeyboardHelp() {
+    shortcutsVisible = !shortcutsVisible;
+    const message = shortcutsVisible ? t('keyboardHelpVisible') : t('keyboardHelpHidden');
+
+    // Update keyboard shortcut labels based on current language
+    updateKeyboardShortcutLabels();
+
+    // Toggle visibility
+    if (shortcutsVisible) {
+      el.shortcutsOverlay.classList.add('isVisible');
+    } else {
+      el.shortcutsOverlay.classList.remove('isVisible');
+    }
+
+    // Update screen reader and announce
+    el.srLive.textContent = message;
+    if (speechEnabled) {
+      speakAsync(message, { interrupt: true, rememberSpoken: false, rememberPrompt: false });
+    }
+  }
+
+  // Update keyboard shortcut labels
+  function updateKeyboardShortcutLabels() {
+    document.getElementById('shortcutTitle').textContent = t('keyboardShortcuts');
+    document.getElementById('shortcutNavigate').textContent = t('navigate');
+    document.getElementById('shortcutAdjust').textContent = t('adjustValue');
+    document.getElementById('shortcutSelect').textContent = t('select');
+    document.getElementById('shortcutBack').textContent = t('goBack');
+    document.getElementById('shortcutRepeat').textContent = t('repeat');
+    document.getElementById('shortcutToggleVoice').textContent = t('toggleVoice');
+    document.getElementById('shortcutHighContrast').textContent = t('highContrast');
+    document.getElementById('shortcutHideHelp').textContent = t('hideHelp');
+  }
+
   // Route map display
   function showRouteMap(departure, arrival, time, platform, tickets, total) {
     const ticketSummary = getSelectedTicketsSummary();
@@ -812,7 +940,9 @@
             <div class="routeMap__label">${t('from')}</div>
             <div class="routeMap__name">${escapeHtml(departure)}</div>
           </div>
-          <div class="routeMap__line"></div>
+          <div class="routeMap__line">
+            <div class="routeMap__train">🚂</div>
+          </div>
           <div class="routeMap__station routeMap__station--end">
             <div class="routeMap__dot"></div>
             <div class="routeMap__label">${t('toDestination')}</div>
@@ -1035,11 +1165,38 @@
     ]
   };
 
-  function setScreen({ locationText, stepText, title, prompt, menuItems, focusTitle = true, speakPrompt = true, hintBarText = null }) {
+  function setScreen({ locationText, stepText, title, prompt, menuItems, focusTitle = true, speakPrompt = true, hintBarText = null, category = null, isReturnJourney = false, titleHasReturnIcon = false }) {
+    // Clear any error alerts when changing screens
+    hideErrorAlert();
+
     el.location.textContent = locationText ?? 'Interactive demo';
     el.stepIndicator.textContent = stepText ?? '';
     el.title.textContent = title;
     el.prompt.textContent = prompt;
+
+    // Update category header
+    if (category) {
+      el.screenCategory.textContent = category;
+      el.screenCategory.className = `kiosk__category kiosk__category--${getCategoryClass(category)}`;
+      el.screenCategory.style.display = 'block';
+    } else {
+      el.screenCategory.textContent = '';
+      el.screenCategory.style.display = 'none';
+    }
+
+    // Apply return journey styling
+    if (isReturnJourney) {
+      el.kioskScreen.classList.add('isReturnJourney');
+    } else {
+      el.kioskScreen.classList.remove('isReturnJourney');
+    }
+
+    // Apply return icon to title
+    if (titleHasReturnIcon) {
+      el.title.classList.add('hasReturnIcon');
+    } else {
+      el.title.classList.remove('hasReturnIcon');
+    }
 
     // Update hint bar if custom text provided
     if (hintBarText !== null) {
@@ -1067,9 +1224,25 @@
         if (item.isDateSelected) {
           btn.classList.add('isDateSelected');
         }
+        if (item.isDateDisabled) {
+          btn.classList.add('isDateDisabled');
+        }
       }
       if (item.isSeparator) {
         btn.classList.add('isSeparator');
+      }
+
+      // Add action button classes
+      if (item.isActionButton) {
+        btn.classList.add('isActionButton');
+      }
+      if (item.isConfirm) {
+        btn.classList.add('isConfirm');
+      }
+
+      // Add quantity adjustment indicator class
+      if (item.hasQuantity) {
+        btn.classList.add('hasQuantity');
       }
 
       btn.tabIndex = -1;
@@ -1106,6 +1279,16 @@
       .replaceAll('>', '&gt;')
       .replaceAll('"', '&quot;')
       .replaceAll("'", '&#039;');
+  }
+
+  function getCategoryClass(category) {
+    const categoryMap = {
+      [t('destinationSelection')]: 'destination',
+      [t('timeAndDate')]: 'time',
+      [t('ticketSelection')]: 'payment',
+      [t('reviewAndPayment')]: 'review'
+    };
+    return categoryMap[category] || 'destination';
   }
 
   function stripEmojis(text) {
@@ -1206,6 +1389,10 @@
     if (el.hintBar) {
       el.hintBar.textContent = t('hintBar');
     }
+    // Also update keyboard shortcuts if visible
+    if (shortcutsVisible) {
+      updateKeyboardShortcutLabels();
+    }
   }
 
   // Screens
@@ -1213,8 +1400,8 @@
     state.screen = 'lang';
 
     // Bilingual prompt text
-    const englishPrompt = 'Accessibility mode enabled. Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice.';
-    const estonianPrompt = 'Ligipääsetavuse režiim sisse lülitatud. Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S, et süsteemi hääl sisse või välja lülitada.';
+    const englishPrompt = 'Accessibility mode enabled. Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice, C for high contrast, H for keyboard help.';
+    const estonianPrompt = 'Ligipääsetavuse režiim sisse lülitatud. Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S süsteemi hääle muutmiseks, C kõrge kontrasti jaoks, H klaviatuuri abi jaoks.';
     const fullPrompt = `${englishPrompt} / ${estonianPrompt}`;
 
     // Always show in English first since user hasn't chosen yet
@@ -1410,6 +1597,7 @@
       menuItems,
       focusTitle: true,
       speakPrompt: true,
+      category: t('destinationSelection'),
     });
   }
 
@@ -1445,6 +1633,7 @@
       menuItems,
       focusTitle: true,
       speakPrompt: true,
+      category: t('destinationSelection'),
     });
   }
 
@@ -1564,6 +1753,7 @@
       focusTitle: !speakPrompt,
       speakPrompt,
       hintBarText: t('hintBarTime'),
+      category: t('timeAndDate'),
     });
 
     // Set active index to first time option (after dates + separator)
@@ -1650,9 +1840,13 @@
           const errorMessage = currentLang === 'et'
             ? 'Tagasisõidu aeg peab olema pärast väljumisaega.'
             : 'Return time must be after departure time.';
+          showErrorAlert(errorMessage);
           speakAsync(errorMessage, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
           return;
         }
+
+        // Valid selection - clear any error alert
+        hideErrorAlert();
 
         state.returnTimeIndex = idx;
         state.returnTime = item.time;
@@ -1682,6 +1876,9 @@
       focusTitle: !speakPrompt,
       speakPrompt,
       hintBarText: t('hintBarTime'),
+      category: t('timeAndDate'),
+      isReturnJourney: true,
+      titleHasReturnIcon: true,
     });
 
     // Set active index to first time option (after dates + separator)
@@ -1700,6 +1897,12 @@
     if (newIndex !== state.returnDateIndex) {
       state.returnDateIndex = newIndex;
       playQuantitySound();
+
+      // If changing to a different day, the time validation might now be valid - clear error
+      if (newIndex !== state.departureDateIndex) {
+        hideErrorAlert();
+      }
+
       const dateLabel = getDateLabel(dates[newIndex]);
       const dateLabelForTTS = formatDateForTTS(dateLabel);
       speakAsync(dateLabelForTTS, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
@@ -1737,11 +1940,14 @@
         meta: qty > 0 ? `${qty} × ${item.price} € = ${itemTotal} €` : `${item.price} € (${t('none')})`,
         ticketLabel: item.label,
         quantity: qty,
+        hasQuantity: true,
         onSelect: () => {
           if (getTotalTickets() === 0) {
             // Can't proceed without selecting at least one ticket - show error
             playErrorSound();
-            speakAsync(t('selectAtLeastOneTicket'), { interrupt: true, rememberSpoken: true, rememberPrompt: false });
+            const errorMsg = t('selectAtLeastOneTicket');
+            showErrorAlert(errorMsg);
+            speakAsync(errorMsg, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
             return;
           }
           playConfirmSound();
@@ -1756,6 +1962,7 @@
       menuItems.push({
         label: t('confirm'),
         meta: `${totalTickets} ${t('tickets')} - ${totalPrice} €`,
+        isActionButton: true,
         isConfirm: true,
         onSelect: () => {
           playConfirmSound();
@@ -1768,6 +1975,7 @@
     // Add cancel transaction button
     menuItems.push({
       label: t('cancelTransaction'),
+      isActionButton: true,
       onSelect: () => cancelTransaction()
     });
 
@@ -1780,6 +1988,7 @@
       focusTitle: !speakPrompt, // Don't focus title when just updating display
       speakPrompt,
       hintBarText: t('hintBarType'),
+      category: t('ticketSelection'),
     });
 
     // Always start at first option when first entering the screen
@@ -1805,6 +2014,12 @@
       const savedIndex = activeIndex;
       state.quantities[ticketLabel] = newQty;
       playQuantitySound();
+
+      // If we now have at least one ticket, clear any error alert
+      if (getTotalTickets() > 0) {
+        hideErrorAlert();
+      }
+
       const qtyFormatted = newQty === 0 ? t('none') : formatNumberForTTS(newQty);
       speakAsync(qtyFormatted, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
       // Re-render to update display without speaking prompt
@@ -1867,6 +2082,7 @@
       menuItems,
       focusTitle: true,
       speakPrompt: true,
+      category: t('reviewAndPayment'),
     });
 
     // Show route map immediately on review screen
@@ -2245,6 +2461,20 @@
     if (key === 's' || key === 'S') {
       e.preventDefault();
       toggleTTS();
+      return;
+    }
+
+    // Toggle high contrast
+    if (key === 'c' || key === 'C') {
+      e.preventDefault();
+      toggleHighContrast();
+      return;
+    }
+
+    // Toggle keyboard help
+    if (key === 'h' || key === 'H') {
+      e.preventDefault();
+      toggleKeyboardHelp();
       return;
     }
 
