@@ -539,6 +539,43 @@ html, body {
   }
 }
 
+/* Date display items - visual only, not keyboard-focusable */
+.menuItem.isDateDisplay {
+  background: rgba(255,255,255,0.02);
+  border-color: transparent;
+  cursor: default;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.menuItem.isDateDisplay.isDateSelected {
+  opacity: 1;
+  border-color: rgba(94,179,255,0.4);
+  background: linear-gradient(135deg, rgba(94,179,255,0.1) 0%, rgba(94,179,255,0.05) 100%);
+}
+
+.menuItem.isDateDisplay::before {
+  content: '📅';
+  margin-right: 8px;
+  position: static;
+  width: auto;
+  height: auto;
+  background: none;
+  opacity: 1;
+}
+
+/* Separator between dates and times */
+.menuItem.isSeparator {
+  pointer-events: none;
+  padding: 8px 24px;
+  opacity: 0.3;
+  font-size: 14px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
 /* Accessibility: Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .videoCall__dot--animate,

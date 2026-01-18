@@ -1060,6 +1060,18 @@
       const btn = document.createElement('div');
       btn.setAttribute('role', 'option');
       btn.className = 'menuItem';
+
+      // Add special classes for date displays and separators
+      if (item.isDateDisplay) {
+        btn.classList.add('isDateDisplay');
+        if (item.isDateSelected) {
+          btn.classList.add('isDateSelected');
+        }
+      }
+      if (item.isSeparator) {
+        btn.classList.add('isSeparator');
+      }
+
       btn.tabIndex = -1;
       btn.dataset.index = String(idx);
       btn.innerHTML = `
@@ -1124,7 +1136,22 @@
 
   function moveActive(delta) {
     if (!currentMenuItems.length) return;
-    activeIndex = clamp(activeIndex + delta, 0, currentMenuItems.length - 1);
+
+    let newIndex = activeIndex + delta;
+
+    // Skip over date displays and separators (non-focusable items)
+    while (newIndex >= 0 && newIndex < currentMenuItems.length) {
+      const item = currentMenuItems[newIndex];
+      if (!item.isDateDisplay && !item.isSeparator) {
+        break; // Found a focusable item
+      }
+      newIndex += delta; // Keep moving in same direction
+    }
+
+    // Clamp to valid range
+    newIndex = clamp(newIndex, 0, currentMenuItems.length - 1);
+    activeIndex = newIndex;
+
     focusActiveItem();
     updateActiveVisual();
     // Speak the newly focused option so arrow navigation is self-voicing.
@@ -1479,7 +1506,31 @@
     const instructions = getInstructions();
     const prompt = `${t('chooseDepartureTime')} ${t('useLeftRightDate')}${instructions ? ' ' + instructions : ''}`;
 
-    const menuItems = data.times.map((item, idx) => ({
+    // Build date display items (visual only, not focusable)
+    const dateItems = dates.map((dateObj, idx) => ({
+      label: getDateLabel(dateObj),
+      isDateDisplay: true,
+      isDateSelected: idx === state.departureDateIndex,
+      dateIndex: idx,
+      onSelect: () => {
+        // If somehow Enter is pressed on a date, move focus to first time
+        state.departureDateIndex = idx;
+        departureTime({ speakPrompt: false });
+        activeIndex = dates.length + 1; // Skip dates + separator
+        focusActiveItem();
+        updateActiveVisual();
+      }
+    }));
+
+    // Add visual separator
+    const separator = {
+      label: '─────────────────────────────────────',
+      isSeparator: true,
+      onSelect: () => {} // Do nothing
+    };
+
+    // Build time items (focusable)
+    const timeItems = data.times.map((item, idx) => ({
       label: item.time,
       meta: `${t('platform')} ${item.platform}`,
       timeIndex: idx,
@@ -1495,19 +1546,14 @@
       }
     }));
 
-    // Add date display row at top
-    menuItems.unshift({
-      label: `${t('date')}: ${dateLabel}`,
-      meta: '← →',
-      isDateSelector: true,
-      onSelect: () => {} // Date selector doesn't do anything on Enter
-    });
-
     // Add cancel transaction button
-    menuItems.push({
+    const cancelButton = {
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
-    });
+    };
+
+    // Combine: dates + separator + times + cancel
+    const menuItems = [...dateItems, separator, ...timeItems, cancelButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -1520,9 +1566,9 @@
       hintBarText: t('hintBarTime'),
     });
 
-    // Set active index to first time option (skip date selector)
+    // Set active index to first time option (after dates + separator)
     if (speakPrompt) {
-      activeIndex = 1 + state.departureTimeIndex;
+      activeIndex = dates.length + 1 + state.departureTimeIndex;
       focusActiveItem();
       updateActiveVisual();
     }
@@ -1538,10 +1584,13 @@
       const dateLabel = getDateLabel(dates[newIndex]);
       const dateLabelForTTS = formatDateForTTS(dateLabel);
       speakAsync(dateLabelForTTS, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
-      // Re-render without speaking prompt
+
+      // Re-render to update date highlights and times
       const savedTimeIndex = state.departureTimeIndex;
       departureTime({ speakPrompt: false });
-      activeIndex = 1 + savedTimeIndex; // +1 to skip date selector
+
+      // Restore focus to same time position (dates + separator + time)
+      activeIndex = dates.length + 1 + savedTimeIndex;
       focusActiveItem();
       updateActiveVisual();
     }
@@ -1566,7 +1615,31 @@
     const instructions = getInstructions();
     const prompt = `${t('chooseReturnTime')} ${t('useLeftRightDate')}${instructions ? ' ' + instructions : ''}`;
 
-    const menuItems = data.times.map((item, idx) => ({
+    // Build date display items (visual only, not focusable)
+    const dateItems = dates.map((dateObj, idx) => ({
+      label: getDateLabel(dateObj),
+      isDateDisplay: true,
+      isDateSelected: idx === state.returnDateIndex,
+      dateIndex: idx,
+      onSelect: () => {
+        // If somehow Enter is pressed on a date, move focus to first time
+        state.returnDateIndex = idx;
+        returnTime({ speakPrompt: false });
+        activeIndex = dates.length + 1; // Skip dates + separator
+        focusActiveItem();
+        updateActiveVisual();
+      }
+    }));
+
+    // Add visual separator
+    const separator = {
+      label: '─────────────────────────────────────',
+      isSeparator: true,
+      onSelect: () => {} // Do nothing
+    };
+
+    // Build time items (focusable)
+    const timeItems = data.times.map((item, idx) => ({
       label: item.time,
       meta: `${t('platform')} ${item.platform}`,
       timeIndex: idx,
@@ -1591,19 +1664,14 @@
       }
     }));
 
-    // Add date display row at top
-    menuItems.unshift({
-      label: `${t('date')}: ${dateLabel}`,
-      meta: '← →',
-      isDateSelector: true,
-      onSelect: () => {} // Date selector doesn't do anything on Enter
-    });
-
     // Add cancel transaction button
-    menuItems.push({
+    const cancelButton = {
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
-    });
+    };
+
+    // Combine: dates + separator + times + cancel
+    const menuItems = [...dateItems, separator, ...timeItems, cancelButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -1616,9 +1684,9 @@
       hintBarText: t('hintBarTime'),
     });
 
-    // Set active index to first time option (skip date selector)
+    // Set active index to first time option (after dates + separator)
     if (speakPrompt) {
-      activeIndex = 1 + state.returnTimeIndex;
+      activeIndex = dates.length + 1 + state.returnTimeIndex;
       focusActiveItem();
       updateActiveVisual();
     }
@@ -1635,10 +1703,13 @@
       const dateLabel = getDateLabel(dates[newIndex]);
       const dateLabelForTTS = formatDateForTTS(dateLabel);
       speakAsync(dateLabelForTTS, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
-      // Re-render without speaking prompt
+
+      // Re-render to update date highlights and times
       const savedTimeIndex = state.returnTimeIndex;
       returnTime({ speakPrompt: false });
-      activeIndex = 1 + savedTimeIndex; // +1 to skip date selector
+
+      // Restore focus to same time position (dates + separator + time)
+      activeIndex = dates.length + 1 + savedTimeIndex;
       focusActiveItem();
       updateActiveVisual();
     }
