@@ -249,6 +249,7 @@
       pleaseWaitCalling: 'Please wait, calling station staff.',
       videoCallInProgress: 'Video call in progress',
       staffConnected: 'Agent Jakob is on the line.',
+      pressEnterToEndCall: 'Press enter to end the call.',
       endCall: 'End call',
       callEnded: 'Call ended.',
 
@@ -499,6 +500,7 @@
       pleaseWaitCalling: 'Palun oota, helistame jaama personalile.',
       videoCallInProgress: 'Videokõne käib',
       staffConnected: 'Agent Jakob on liinil.',
+      pressEnterToEndCall: 'Vajuta enter kõne lõpetamiseks.',
       endCall: 'Lõpeta kõne',
       callEnded: 'Kõne lõpetatud.',
 
@@ -1861,7 +1863,13 @@
           stopPhoneRinging();
           playCallConnected();
           updateVideoCallStatus('videoCallInProgress');
-          speakAsync(t('staffConnected'), { interrupt: true, rememberSpoken: true, rememberPrompt: false });
+          speakAsync(t('staffConnected') + ' ' + t('pressEnterToEndCall'), { interrupt: true, rememberSpoken: true, rememberPrompt: false });
+          // Auto-end call after 5 seconds
+          setTimeout(() => {
+            if (state.screen === 'contact') {
+              endCall();
+            }
+          }, 5000);
         }
       }, 4000);
     });
