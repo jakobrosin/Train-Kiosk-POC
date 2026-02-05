@@ -18,6 +18,10 @@
   // Current language: 'en' or 'et'
   let currentLang = 'en';
 
+  // Accessibility settings (reset on page load)
+  let speechRateMultiplier = 1.0;
+  let globalVolumeMultiplier = 0.6;
+
   const translations = {
     en: {
       instructions: 'Use Up and Down arrow keys to move, press Enter to confirm. Press Backspace to return to the previous menu and R to repeat the last message.',
@@ -53,6 +57,22 @@
       toggleVoice: 'Toggle voice',
       highContrast: 'High contrast',
       hideHelp: 'Hide help',
+
+      // Accessibility settings screen
+      configureAccessibility: 'Configure accessibility for this session',
+      accessibilitySettingsTitle: 'Accessibility settings',
+      speechRate: 'Speech rate',
+      textSize: 'Text size',
+      volumeLevel: 'Volume',
+      highContrastSetting: 'High contrast',
+      on: 'On',
+      off: 'Off',
+      saveAndContinue: 'Save and continue',
+      resetToDefaults: 'Reset to defaults',
+      settingsSaved: 'Settings saved.',
+      settingsReset: 'Settings reset.',
+      textSizeShortcutHint: 'Press plus or minus keys to adjust text size from any screen.',
+      plusMinusKeys: 'Plus and Minus keys – Adjust text size from any screen',
 
       // Accessibility help screen
       accessibilityHelpTitle: 'Accessibility Help',
@@ -289,6 +309,22 @@
       highContrast: 'Kõrge kontrast',
       hideHelp: 'Peida abi',
 
+      // Accessibility settings screen
+      configureAccessibility: 'Seadista ligipääsetavus selle sessiooni jaoks',
+      accessibilitySettingsTitle: 'Ligipääsetavuse seaded',
+      speechRate: 'Kõne kiirus',
+      textSize: 'Teksti suurus',
+      volumeLevel: 'Helitugevus',
+      highContrastSetting: 'Kõrge kontrast',
+      on: 'Sees',
+      off: 'Väljas',
+      saveAndContinue: 'Salvesta ja jätka',
+      resetToDefaults: 'Taasta vaikeväärtused',
+      settingsSaved: 'Seaded salvestatud.',
+      settingsReset: 'Seaded lähtestatud.',
+      textSizeShortcutHint: 'Vajuta pluss või miinus klahve teksti suuruse muutmiseks igal ekraanil.',
+      plusMinusKeys: 'Pluss ja Miinus klahvid – muuda teksti suurust igal ekraanil',
+
       // Accessibility help screen
       accessibilityHelpTitle: 'Ligipääsetavuse abi',
       accessibilityHelpIntro: 'See demo kasutajaliides on loodud klaviatuuriga navigeerimiseks. Kui kasutad ekraanilugejat, lülita sisse sirviimisrežiim (browse mode).',
@@ -515,7 +551,7 @@
     const run = () => new Promise((resolve) => {
       try {
         const u = new SpeechSynthesisUtterance(text);
-        u.rate = 1.0;
+        u.rate = speechRateMultiplier;
         u.pitch = 1.0;
 
         // Allow forcing a specific language (for language picker)
@@ -698,7 +734,7 @@
 
       oscillator.frequency.value = frequency;
       oscillator.type = type;
-      gainNode.gain.value = volume;
+      gainNode.gain.value = volume * globalVolumeMultiplier;
 
       // Fade out
       gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
@@ -737,8 +773,8 @@
         osc1b.connect(gain1);
         gain1.connect(ctx.destination);
         gain1.gain.setValueAtTime(0, now);
-        gain1.gain.linearRampToValueAtTime(0.2, now + 0.08);
-        gain1.gain.setValueAtTime(0.2, now + 0.35);
+        gain1.gain.linearRampToValueAtTime(0.2 * globalVolumeMultiplier, now + 0.08);
+        gain1.gain.setValueAtTime(0.2 * globalVolumeMultiplier, now + 0.35);
         gain1.gain.linearRampToValueAtTime(0, now + 0.5);
         osc1a.start(now);
         osc1b.start(now);
@@ -757,8 +793,8 @@
         osc2b.connect(gain2);
         gain2.connect(ctx.destination);
         gain2.gain.setValueAtTime(0, now + 0.55);
-        gain2.gain.linearRampToValueAtTime(0.25, now + 0.63);
-        gain2.gain.setValueAtTime(0.25, now + 1.0);
+        gain2.gain.linearRampToValueAtTime(0.25 * globalVolumeMultiplier, now + 0.63);
+        gain2.gain.setValueAtTime(0.25 * globalVolumeMultiplier, now + 1.0);
         gain2.gain.linearRampToValueAtTime(0, now + 1.2);
         osc2a.start(now + 0.55);
         osc2b.start(now + 0.55);
@@ -797,8 +833,8 @@
 
       // Long continuous tone with fade in/out
       gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.15, now + 0.05);
-      gain.gain.setValueAtTime(0.15, now + 0.9);
+      gain.gain.linearRampToValueAtTime(0.15 * globalVolumeMultiplier, now + 0.05);
+      gain.gain.setValueAtTime(0.15 * globalVolumeMultiplier, now + 0.9);
       gain.gain.linearRampToValueAtTime(0, now + 1.0);
 
       osc1.start(now);
@@ -1014,6 +1050,10 @@
     // Position tracking for help screen returns
     returnToScreen: null,
     returnToActiveIndex: 0,
+    // Accessibility settings (1-5 scale, default 3)
+    speechRate: 3,
+    textSize: 3,
+    volume: 3,
   };
 
   function resetQuantities() {
@@ -1253,6 +1293,9 @@
       if (item.hasQuantity) {
         btn.classList.add('hasQuantity');
       }
+      if (item.hasAdjustable) {
+        btn.classList.add('hasAdjustable');
+      }
 
       // Add info text and keyboard shortcut classes
       if (item.isInfoText) {
@@ -1413,8 +1456,8 @@
     state.screen = 'lang';
 
     // Bilingual prompt text
-    const englishPrompt = 'Accessibility mode enabled. Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice, C for high contrast, H for keyboard help.';
-    const estonianPrompt = 'Ligipääsetavuse režiim sisse lülitatud. Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S süsteemi hääle muutmiseks, C kõrge kontrasti jaoks, H klaviatuuri abi jaoks.';
+    const englishPrompt = 'Accessibility mode enabled. Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice, C for high contrast, H for keyboard help. Press plus or minus to adjust text size.';
+    const estonianPrompt = 'Ligipääsetavuse režiim sisse lülitatud. Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S süsteemi hääle muutmiseks, C kõrge kontrasti jaoks, H klaviatuuri abi jaoks. Vajuta pluss või miinus teksti suuruse muutmiseks.';
     const fullPrompt = `${englishPrompt} / ${estonianPrompt}`;
 
     // Always show in English first since user hasn't chosen yet
@@ -1482,6 +1525,7 @@
       prompt,
       menuItems: [
         { label: t('purchaseTicket'), onSelect: () => departureStation() },
+        // { label: t('configureAccessibility'), onSelect: () => accessibilitySettingsScreen() },
         { label: t('checkCard'), onSelect: () => notAvailable(t('checkCard')) },
         { label: t('viewSchedules'), onSelect: () => notAvailable(t('viewSchedules')) },
         { label: t('contactStaff'), onSelect: () => contactStaff() },
@@ -1568,6 +1612,11 @@
         onSelect: () => {} // No action
       },
       {
+        label: t('plusMinusKeys'),
+        isKeyboardShortcut: true,
+        onSelect: () => {} // No action
+      },
+      {
         label: t('exitHelp'),
         onSelect: () => returnFromHelp()
       }
@@ -1597,6 +1646,7 @@
     switch (previousScreen) {
       case 'boot': bootScreen(); break;
       case 'main': mainMenu(); break;
+      case 'accessibilitySettings': accessibilitySettingsScreen(); break;
       case 'dep': departureStation(); break;
       case 'arr': arrivalStation(); break;
       case 'return': returnTicketQuestion(); break;
@@ -1616,6 +1666,145 @@
       activeIndex = previousIndex;
       updateActive();
     }, 50);
+  }
+
+  // Apply accessibility settings
+  function applySpeechRate() {
+    const rateMap = { 1: 0.5, 2: 0.75, 3: 1.0, 4: 1.5, 5: 2.0 };
+    speechRateMultiplier = rateMap[state.speechRate] || 1.0;
+  }
+
+  function applyTextSize() {
+    const sizeMap = { 1: 0.8, 2: 0.9, 3: 1.0, 4: 1.15, 5: 1.3 };
+    const multiplier = sizeMap[state.textSize] || 1.0;
+    document.documentElement.style.setProperty('--text-size-multiplier', multiplier);
+  }
+
+  function applyVolume() {
+    const volumeMap = { 1: 0.2, 2: 0.4, 3: 0.6, 4: 0.8, 5: 1.0 };
+    globalVolumeMultiplier = volumeMap[state.volume] || 0.6;
+  }
+
+  function resetAccessibilitySettings() {
+    state.speechRate = 3;
+    state.textSize = 3;
+    state.volume = 3;
+    highContrastEnabled = false;
+    el.htmlRoot.classList.remove('highContrast');
+    applySpeechRate();
+    applyTextSize();
+    applyVolume();
+  }
+
+  function adjustAccessibilitySetting(delta) {
+    const item = currentMenuItems[activeIndex];
+    if (!item || !item.settingKey) return;
+
+    const key = item.settingKey;
+
+    if (key === 'highContrast') {
+      // Toggle high contrast
+      highContrastEnabled = !highContrastEnabled;
+      if (highContrastEnabled) {
+        el.htmlRoot.classList.add('highContrast');
+      } else {
+        el.htmlRoot.classList.remove('highContrast');
+      }
+      playQuantitySound();
+      accessibilitySettingsScreen(); // Refresh screen
+      const statusText = highContrastEnabled ? t('on') : t('off');
+      speakAsync(`${t('highContrastSetting')}, ${statusText}`, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
+    } else {
+      // Adjust numeric setting (1-5)
+      const currentValue = state[key];
+      const newValue = clamp(currentValue + delta, 1, 5);
+      if (newValue !== currentValue) {
+        state[key] = newValue;
+        playQuantitySound();
+
+        // Apply the setting immediately
+        if (key === 'speechRate') applySpeechRate();
+        else if (key === 'textSize') applyTextSize();
+        else if (key === 'volume') applyVolume();
+
+        accessibilitySettingsScreen(); // Refresh screen
+        const settingName = key === 'speechRate' ? t('speechRate') : key === 'textSize' ? t('textSize') : t('volumeLevel');
+        speakAsync(`${settingName}, ${formatNumberForTTS(newValue)}`, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
+      }
+    }
+  }
+
+  function accessibilitySettingsScreen() {
+    state.screen = 'accessibilitySettings';
+
+    const savedActiveIndex = activeIndex;
+
+    const menuItems = [
+      {
+        label: t('speechRate'),
+        meta: String(state.speechRate),
+        settingKey: 'speechRate',
+        hasAdjustable: true,
+        onSelect: () => {} // Left/right adjusts
+      },
+      {
+        label: t('textSize'),
+        meta: String(state.textSize),
+        settingKey: 'textSize',
+        hasAdjustable: true,
+        onSelect: () => {} // Left/right adjusts
+      },
+      {
+        label: t('volumeLevel'),
+        meta: String(state.volume),
+        settingKey: 'volume',
+        hasAdjustable: true,
+        onSelect: () => {} // Left/right adjusts
+      },
+      {
+        label: t('highContrastSetting'),
+        meta: highContrastEnabled ? t('on') : t('off'),
+        settingKey: 'highContrast',
+        hasAdjustable: true,
+        onSelect: () => {} // Left/right toggles
+      },
+      {
+        label: t('resetToDefaults'),
+        isActionButton: true,
+        onSelect: () => {
+          resetAccessibilitySettings();
+          playConfirmSound();
+          accessibilitySettingsScreen();
+          speakAsync(t('settingsReset'), { interrupt: true, rememberSpoken: true, rememberPrompt: false });
+        }
+      },
+      {
+        label: t('saveAndContinue'),
+        isActionButton: true,
+        isConfirm: true,
+        onSelect: () => {
+          playConfirmSound();
+          advanceAfterSpeech(t('settingsSaved'), mainMenu);
+        }
+      }
+    ];
+
+    setScreen({
+      locationText: t('baltiJaam'),
+      stepText: t('accessibilitySettingsTitle'),
+      title: t('accessibilitySettingsTitle'),
+      prompt: t('textSizeShortcutHint'),
+      menuItems,
+      focusTitle: false,
+      speakPrompt: savedActiveIndex === 0, // Only speak on first entry
+    });
+
+    // Restore active index after refresh
+    if (savedActiveIndex > 0 && savedActiveIndex < menuItems.length) {
+      activeIndex = savedActiveIndex;
+      updateActiveVisual();
+      focusActiveItem();
+    }
   }
 
   function showVideoCallUI() {
@@ -2529,6 +2718,9 @@
       case 'na':
         mainMenu();
         return;
+      case 'accessibilitySettings':
+        mainMenu();
+        return;
       case 'contact':
         endCall();
         return;
@@ -2632,12 +2824,59 @@
       return;
     }
 
+    // Global text size adjustment with +/-
+    if (key === '+' || key === '=' || key === 'NumpadAdd') {
+      e.preventDefault();
+      if (state.textSize < 5) {
+        state.textSize++;
+        applyTextSize();
+        playQuantitySound();
+        speakAsync(`${t('textSize')}, ${formatNumberForTTS(state.textSize)}`, { interrupt: true, rememberSpoken: false, rememberPrompt: false });
+      }
+      return;
+    }
+    if (key === '-' || key === '_' || key === 'NumpadSubtract') {
+      e.preventDefault();
+      if (state.textSize > 1) {
+        state.textSize--;
+        applyTextSize();
+        playQuantitySound();
+        speakAsync(`${t('textSize')}, ${formatNumberForTTS(state.textSize)}`, { interrupt: true, rememberSpoken: false, rememberPrompt: false });
+      }
+      return;
+    }
+
     // Start shortcut: Enter on boot
     if (key === 'Enter') {
       e.preventDefault();
       playSelectSound();
       activateIndex(activeIndex);
       return;
+    }
+
+    // On accessibility settings screen, left/right adjusts values
+    if (state.screen === 'accessibilitySettings') {
+      if (key === 'ArrowLeft') {
+        e.preventDefault();
+        adjustAccessibilitySetting(-1);
+        return;
+      }
+      if (key === 'ArrowRight') {
+        e.preventDefault();
+        adjustAccessibilitySetting(1);
+        return;
+      }
+      // Up/down navigates menu
+      if (key === 'ArrowDown') {
+        e.preventDefault();
+        moveActive(1);
+        return;
+      }
+      if (key === 'ArrowUp') {
+        e.preventDefault();
+        moveActive(-1);
+        return;
+      }
     }
 
     // On ticket type screen, left/right adjusts quantity
