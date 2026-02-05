@@ -540,12 +540,17 @@
   // A simple queue so we can avoid interrupting ourselves between screens.
   let speechChain = Promise.resolve();
 
-  function speakAsync(text, { interrupt = true, rememberSpoken = true, rememberPrompt = false, forceLang = null } = {}) {
-    // Keep the live region aligned with what the kiosk voice says.
-    el.srLive.textContent = text;
-
+  function speakAsync(text, { interrupt = true, rememberSpoken = true, rememberPrompt = false, forceLang = null, skipLiveRegion = false } = {}) {
     if (rememberSpoken) lastSpoken = text;
     if (rememberPrompt) lastPrompt = text;
+
+    // Update aria-live region for screen reader users, UNLESS:
+    // - skipLiveRegion is true (menu navigation) AND TTS is disabled
+    // When TTS is disabled for menu items, screen reader announces via native focus.
+    // For everything else (instructions, R key repeat, etc.), always update aria-live.
+    if (!skipLiveRegion || speechEnabled) {
+      el.srLive.textContent = text;
+    }
 
     if (!speechEnabled) return Promise.resolve();
     if (!('speechSynthesis' in window)) return Promise.resolve();
@@ -1309,6 +1314,13 @@
 
       btn.tabIndex = -1;
       btn.dataset.index = String(idx);
+
+      // Build aria-label with proper punctuation for screen reader pacing
+      const ariaLabel = item.meta
+        ? `${stripEmojis(item.label)}, ${item.meta}`
+        : stripEmojis(item.label);
+      btn.setAttribute('aria-label', ariaLabel);
+
       btn.innerHTML = `
         <span>${escapeHtml(item.label)}</span>
         ${item.meta ? `<span class="menuItem__meta">${escapeHtml(item.meta)}</span>` : ''}
@@ -1403,7 +1415,7 @@
     const item = currentMenuItems[activeIndex];
     if (item && item.label) {
       let announcement;
-      let options = { interrupt: true, rememberSpoken: true, rememberPrompt: false };
+      let options = { interrupt: true, rememberSpoken: true, rememberPrompt: false, skipLiveRegion: true };
 
       // On language screen, speak each option in its respective language
       if (state.screen === 'lang' && item.langCode) {
@@ -2788,6 +2800,10 @@
     if (speechEnabled) {
       playTTSOnSound();
     } else {
+      // Immediately stop any ongoing speech
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
       playTTSOffSound();
     }
 
