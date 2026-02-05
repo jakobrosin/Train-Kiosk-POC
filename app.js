@@ -1526,8 +1526,8 @@
       menuItems: [
         { label: t('purchaseTicket'), onSelect: () => departureStation() },
         // { label: t('configureAccessibility'), onSelect: () => accessibilitySettingsScreen() },
-        { label: t('checkCard'), onSelect: () => notAvailable(t('checkCard')) },
-        { label: t('viewSchedules'), onSelect: () => notAvailable(t('viewSchedules')) },
+        // { label: t('checkCard'), onSelect: () => notAvailable(t('checkCard')) },
+        // { label: t('viewSchedules'), onSelect: () => notAvailable(t('viewSchedules')) },
         { label: t('contactStaff'), onSelect: () => contactStaff() },
         { label: t('accessibilityHelp'), onSelect: () => accessibilityHelpScreen() },
       ],
