@@ -76,7 +76,7 @@
 
       // Accessibility help screen
       accessibilityHelpTitle: 'Accessibility Help',
-      accessibilityHelpIntro: 'This interface is designed for keyboard navigation. If you use a screen reader, turn on browse mode.',
+      accessibilityHelpIntro: 'This interface is designed for keyboard navigation. If you use a screen reader, turn on focus mode.',
       exitHelp: 'Exit help',
 
       // Keyboard shortcuts (for help screen list items)
@@ -327,7 +327,7 @@
 
       // Accessibility help screen
       accessibilityHelpTitle: 'Ligipääsetavuse abi',
-      accessibilityHelpIntro: 'See demo kasutajaliides on loodud klaviatuuriga navigeerimiseks. Kui kasutad ekraanilugejat, lülita sisse sirviimisrežiim (browse mode).',
+      accessibilityHelpIntro: 'See demo kasutajaliides on loodud klaviatuuriga navigeerimiseks. Kui kasutad ekraanilugejat, lülita sisse fookusrežiim (focus mode).',
       exitHelp: 'Välju abist',
 
       // Keyboard shortcuts (for help screen list items)
