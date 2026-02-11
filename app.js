@@ -100,6 +100,7 @@
       languagePrompt: 'Please select your language. Use Up and Down arrow keys to navigate and Enter to confirm. Press S to toggle system voice.',
       english: 'English',
       estonian: 'Eesti',
+      changeLanguage: 'Change language',
 
       // Boot screen
       welcomeTitle: 'Welcome',
@@ -352,6 +353,7 @@
       languagePrompt: 'Palun vali keel. Kasuta üles ja alla nooli navigeerimiseks ja Enterit kinnitamiseks. Vajuta S, et süsteemi hääl sisse või välja lülitada.',
       english: 'English',
       estonian: 'Eesti',
+      changeLanguage: 'Vaheta keelt',
 
       // Boot screen
       welcomeTitle: 'Tere tulemast',
@@ -1057,6 +1059,9 @@
     // Position tracking for help screen returns
     returnToScreen: null,
     returnToActiveIndex: 0,
+    // Position tracking for language change returns
+    langReturnScreen: null,
+    langReturnActiveIndex: 0,
     // Accessibility settings (1-5 scale, default 3)
     speechRate: 3,
     textSize: 3,
@@ -1396,17 +1401,22 @@
 
     let newIndex = activeIndex + delta;
 
-    // Skip over date displays and separators (non-focusable items)
-    while (newIndex >= 0 && newIndex < currentMenuItems.length) {
+    // Wrap around when going past the edges
+    if (newIndex < 0) newIndex = currentMenuItems.length - 1;
+    if (newIndex >= currentMenuItems.length) newIndex = 0;
+
+    // Skip over date displays and separators (non-focusable items), wrapping if needed
+    const len = currentMenuItems.length;
+    let attempts = 0;
+    while (attempts < len) {
       const item = currentMenuItems[newIndex];
-      if (!item.isDateDisplay && !item.isSeparator) {
-        break; // Found a focusable item
-      }
-      newIndex += delta; // Keep moving in same direction
+      if (!item.isDateDisplay && !item.isSeparator) break;
+      newIndex += delta;
+      if (newIndex < 0) newIndex = len - 1;
+      if (newIndex >= len) newIndex = 0;
+      attempts++;
     }
 
-    // Clamp to valid range
-    newIndex = clamp(newIndex, 0, currentMenuItems.length - 1);
     activeIndex = newIndex;
 
     focusActiveItem();
@@ -1520,7 +1530,8 @@
       title: t('welcomeTitle'),
       prompt: t('welcomePrompt'),
       menuItems: [
-        { label: t('start'), meta: t('pressEnter'), onSelect: () => mainMenu() }
+        { label: t('start'), meta: t('pressEnter'), onSelect: () => mainMenu() },
+        { label: t('changeLanguage'), onSelect: () => changeLanguageScreen() }
       ],
       focusTitle: true,
       speakPrompt: true,
@@ -1544,6 +1555,7 @@
         // { label: t('viewSchedules'), onSelect: () => notAvailable(t('viewSchedules')) },
         { label: t('contactStaff'), onSelect: () => contactStaff() },
         { label: t('accessibilityHelp'), onSelect: () => accessibilityHelpScreen() },
+        { label: t('changeLanguage'), onSelect: () => changeLanguageScreen() },
       ],
       focusTitle: false,
       speakPrompt: false, // We'll speak after the whistle
@@ -1679,6 +1691,74 @@
     setTimeout(() => {
       activeIndex = previousIndex;
       updateActive();
+    }, 50);
+  }
+
+  // Change language screen (accessible from any screen)
+  function changeLanguageScreen() {
+    // Save where we came from
+    state.langReturnScreen = state.screen;
+    state.langReturnActiveIndex = activeIndex;
+
+    state.screen = 'changeLang';
+
+    setScreen({
+      locationText: t('interactiveDemo'),
+      stepText: '',
+      title: t('changeLanguage'),
+      prompt: t('languagePrompt'),
+      menuItems: [
+        {
+          label: 'English',
+          langCode: 'en',
+          onSelect: () => {
+            currentLang = 'en';
+            el.htmlRoot.setAttribute('lang', 'en');
+            updateHintBar();
+            advanceAfterSpeech('English selected.', returnFromLanguageChange);
+          }
+        },
+        {
+          label: 'Eesti keel',
+          langCode: 'et',
+          onSelect: () => {
+            currentLang = 'et';
+            el.htmlRoot.setAttribute('lang', 'et');
+            updateHintBar();
+            advanceAfterSpeech('Eesti keel valitud.', returnFromLanguageChange);
+          }
+        }
+      ],
+      focusTitle: true,
+      speakPrompt: true,
+    });
+  }
+
+  function returnFromLanguageChange() {
+    const previousScreen = state.langReturnScreen;
+    const previousIndex = state.langReturnActiveIndex;
+
+    state.langReturnScreen = null;
+    state.langReturnActiveIndex = 0;
+
+    switch (previousScreen) {
+      case 'boot': bootScreen(); break;
+      case 'main': mainMenu(); break;
+      case 'dep': departureStation(); break;
+      case 'arr': arrivalStation(); break;
+      case 'return': returnTicketQuestion(); break;
+      case 'time': departureTime(); break;
+      case 'returnTime': returnTime(); break;
+      case 'type': ticketType(); break;
+      case 'review': review(); break;
+      case 'done': finalMessage(); break;
+      default: mainMenu(); break;
+    }
+
+    setTimeout(() => {
+      activeIndex = previousIndex;
+      focusActiveItem();
+      updateActiveVisual();
     }, 50);
   }
 
@@ -1919,6 +1999,10 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     });
+    menuItems.push({
+      label: t('changeLanguage'),
+      onSelect: () => changeLanguageScreen()
+    });
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -1958,6 +2042,10 @@
     menuItems.push({
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
+    });
+    menuItems.push({
+      label: t('changeLanguage'),
+      onSelect: () => changeLanguageScreen()
     });
 
     setScreen({
@@ -2007,6 +2095,10 @@
     menuItems.push({
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
+    });
+    menuItems.push({
+      label: t('changeLanguage'),
+      onSelect: () => changeLanguageScreen()
     });
 
     setScreen({
@@ -2429,6 +2521,10 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     });
+    menuItems.push({
+      label: t('changeLanguage'),
+      onSelect: () => changeLanguageScreen()
+    });
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2596,6 +2692,10 @@
         {
           label: t('stationExit'),
           onSelect: () => showDirections('exit')
+        },
+        {
+          label: t('changeLanguage'),
+          onSelect: () => changeLanguageScreen()
         }
       ],
       focusTitle: true,
@@ -2728,6 +2828,9 @@
     switch (state.screen) {
       case 'lang':
         // Can't go back from language selection
+        return;
+      case 'changeLang':
+        returnFromLanguageChange();
         return;
       case 'boot':
         languageScreen();
