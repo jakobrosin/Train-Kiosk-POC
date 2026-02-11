@@ -2870,6 +2870,22 @@
       return;
     }
 
+    // Number keys 1-9: activate the Nth focusable menu item directly
+    const numKey = parseInt(key, 10);
+    if (numKey >= 1 && numKey <= 9) {
+      e.preventDefault();
+      // Build list of focusable item indices (skip date displays and separators)
+      const focusable = currentMenuItems
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item }) => !item.isDateDisplay && !item.isSeparator);
+      const target = focusable[numKey - 1];
+      if (target) {
+        playSelectSound();
+        activateIndex(target.idx);
+      }
+      return;
+    }
+
     // Start shortcut: Enter on boot
     if (key === 'Enter') {
       e.preventDefault();
