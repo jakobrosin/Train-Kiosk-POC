@@ -1751,7 +1751,10 @@
       case 'returnTime': returnTime(); break;
       case 'type': ticketType(); break;
       case 'review': review(); break;
+      case 'confirmPurchase': confirmPurchaseQuestion(); break;
+      case 'pay': paymentInstruction(); break;
       case 'done': finalMessage(); break;
+      case 'directions': finalMessage(); break;
       default: mainMenu(); break;
     }
 
@@ -2176,8 +2179,13 @@
       onSelect: () => cancelTransaction()
     };
 
-    // Combine: dates + separator + times + help + cancel
-    const menuItems = [...dateItems, separator, ...timeItems, helpButton, cancelButton];
+    const changeLangButton = {
+      label: t('changeLanguage'),
+      onSelect: () => changeLanguageScreen()
+    };
+
+    // Combine: dates + separator + times + help + cancel + change language
+    const menuItems = [...dateItems, separator, ...timeItems, helpButton, cancelButton, changeLangButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2303,8 +2311,13 @@
       onSelect: () => cancelTransaction()
     };
 
-    // Combine: dates + separator + times + help + cancel
-    const menuItems = [...dateItems, separator, ...timeItems, helpButton, cancelButton];
+    const changeLangButton = {
+      label: t('changeLanguage'),
+      onSelect: () => changeLanguageScreen()
+    };
+
+    // Combine: dates + separator + times + help + cancel + change language
+    const menuItems = [...dateItems, separator, ...timeItems, helpButton, cancelButton, changeLangButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2421,6 +2434,11 @@
       label: t('cancelTransaction'),
       isActionButton: true,
       onSelect: () => cancelTransaction()
+    });
+    menuItems.push({
+      label: t('changeLanguage'),
+      isActionButton: true,
+      onSelect: () => changeLanguageScreen()
     });
 
     setScreen({
@@ -2566,6 +2584,10 @@
           label: t('noGoBack'),
           meta: t('backspace'),
           onSelect: () => goBack()
+        },
+        {
+          label: t('changeLanguage'),
+          onSelect: () => changeLanguageScreen()
         }
       ],
       focusTitle: true,
@@ -2639,6 +2661,10 @@
           onSelect: () => {
             cancelTransaction();
           }
+        },
+        {
+          label: t('changeLanguage'),
+          onSelect: () => changeLanguageScreen()
         }
       ],
       focusTitle: true,
@@ -2770,6 +2796,10 @@
               resetState();
               languageScreen();
             }
+          },
+          {
+            label: t('changeLanguage'),
+            onSelect: () => changeLanguageScreen()
           }
         ],
         focusTitle: true,
@@ -2808,6 +2838,10 @@
             resetState();
             languageScreen();
           }
+        },
+        {
+          label: t('changeLanguage'),
+          onSelect: () => changeLanguageScreen()
         }
       ],
       focusTitle: true,
