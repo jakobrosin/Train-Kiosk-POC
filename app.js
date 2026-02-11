@@ -1531,6 +1531,7 @@
       prompt: t('welcomePrompt'),
       menuItems: [
         { label: t('start'), meta: t('pressEnter'), onSelect: () => mainMenu() },
+        { label: t('back'), meta: t('backspace'), onSelect: () => goBack() },
         { label: t('changeLanguage'), onSelect: () => changeLanguageScreen() }
       ],
       focusTitle: true,
@@ -1554,6 +1555,7 @@
         // { label: t('checkCard'), onSelect: () => notAvailable(t('checkCard')) },
         // { label: t('viewSchedules'), onSelect: () => notAvailable(t('viewSchedules')) },
         { label: t('contactStaff'), onSelect: () => contactStaff() },
+        { label: t('back'), meta: t('backspace'), onSelect: () => goBack() },
         { label: t('accessibilityHelp'), onSelect: () => accessibilityHelpScreen() },
         { label: t('changeLanguage'), onSelect: () => changeLanguageScreen() },
       ],
@@ -1883,6 +1885,11 @@
           playConfirmSound();
           advanceAfterSpeech(t('settingsSaved'), mainMenu);
         }
+      },
+      {
+        label: t('back'),
+        meta: t('backspace'),
+        onSelect: () => goBack()
       }
     ];
 
@@ -1993,7 +2000,12 @@
       }
     }));
 
-    // Add help and cancel buttons
+    // Add back, help and cancel buttons
+    menuItems.push({
+      label: t('back'),
+      meta: t('backspace'),
+      onSelect: () => goBack()
+    });
     menuItems.push({
       label: t('accessibilityHelp'),
       onSelect: () => accessibilityHelpScreen()
@@ -2037,7 +2049,12 @@
       }
     }));
 
-    // Add help and cancel buttons
+    // Add back, help and cancel buttons
+    menuItems.push({
+      label: t('back'),
+      meta: t('backspace'),
+      onSelect: () => goBack()
+    });
     menuItems.push({
       label: t('accessibilityHelp'),
       onSelect: () => accessibilityHelpScreen()
@@ -2090,7 +2107,12 @@
       }
     ];
 
-    // Add help and cancel buttons
+    // Add back, help and cancel buttons
+    menuItems.push({
+      label: t('back'),
+      meta: t('backspace'),
+      onSelect: () => goBack()
+    });
     menuItems.push({
       label: t('accessibilityHelp'),
       onSelect: () => accessibilityHelpScreen()
@@ -2169,7 +2191,12 @@
       }
     }));
 
-    // Add help and cancel buttons
+    // Add back, help and cancel buttons
+    const backButton = {
+      label: t('back'),
+      meta: t('backspace'),
+      onSelect: () => goBack()
+    };
     const helpButton = {
       label: t('accessibilityHelp'),
       onSelect: () => accessibilityHelpScreen()
@@ -2178,14 +2205,13 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     };
-
     const changeLangButton = {
       label: t('changeLanguage'),
       onSelect: () => changeLanguageScreen()
     };
 
-    // Combine: dates + separator + times + help + cancel + change language
-    const menuItems = [...dateItems, separator, ...timeItems, helpButton, cancelButton, changeLangButton];
+    // Combine: dates + separator + times + back + help + cancel + change language
+    const menuItems = [...dateItems, separator, ...timeItems, backButton, helpButton, cancelButton, changeLangButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2238,8 +2264,14 @@
       state.returnDateIndex = minReturnDateIndex;
     }
     const selectedDate = dates[state.returnDateIndex] || dates[minReturnDateIndex];
-    const selectedTime = data.times[state.returnTimeIndex] || data.times[0];
 
+    // If on the same day as departure, ensure return time index is after departure time
+    const isSameDayCheck = state.returnDateIndex === state.departureDateIndex;
+    if (isSameDayCheck && state.returnTimeIndex <= state.departureTimeIndex) {
+      state.returnTimeIndex = state.departureTimeIndex + 1;
+    }
+
+    const selectedTime = data.times[state.returnTimeIndex] || data.times[data.times.length - 1];
     state.returnTime = selectedTime.time;
     state.returnPlatform = selectedTime.platform;
 
@@ -2271,37 +2303,32 @@
       onSelect: () => {} // Do nothing
     };
 
-    // Build time items (focusable)
-    const timeItems = data.times.map((item, idx) => ({
-      label: item.time,
-      meta: `${t('platform')} ${item.platform}`,
-      timeIndex: idx,
-      onSelect: () => {
-        // Validate that return time is after departure time if on the same day
-        if (state.returnDateIndex === state.departureDateIndex && idx <= state.departureTimeIndex) {
-          playErrorSound();
-          const errorMessage = currentLang === 'et'
-            ? 'Tagasisõidu aeg peab olema pärast väljumisaega.'
-            : 'Return time must be after departure time.';
-          showErrorAlert(errorMessage);
-          speakAsync(errorMessage, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
-          return;
+    // Build time items (focusable), filtering out times before departure on the same day
+    const isSameDay = state.returnDateIndex === state.departureDateIndex;
+    const timeItems = data.times
+      .map((item, idx) => ({ item, idx }))
+      .filter(({ idx }) => !isSameDay || idx > state.departureTimeIndex)
+      .map(({ item, idx }) => ({
+        label: item.time,
+        meta: `${t('platform')} ${item.platform}`,
+        timeIndex: idx,
+        onSelect: () => {
+          state.returnTimeIndex = idx;
+          state.returnTime = item.time;
+          state.returnPlatform = item.platform;
+          playConfirmSound();
+          const timeFormatted = formatTimeForTTS(item.time);
+          const platformFormatted = formatNumberForTTS(item.platform);
+          advanceAfterSpeech(`${dateLabelForTTS}, ${timeFormatted} ${t('fromPlatform')} ${platformFormatted} ${t('selected').toLowerCase()}.`, ticketType);
         }
+      }));
 
-        // Valid selection - clear any error alert
-        hideErrorAlert();
-
-        state.returnTimeIndex = idx;
-        state.returnTime = item.time;
-        state.returnPlatform = item.platform;
-        playConfirmSound();
-        const timeFormatted = formatTimeForTTS(item.time);
-        const platformFormatted = formatNumberForTTS(item.platform);
-        advanceAfterSpeech(`${dateLabelForTTS}, ${timeFormatted} ${t('fromPlatform')} ${platformFormatted} ${t('selected').toLowerCase()}.`, ticketType);
-      }
-    }));
-
-    // Add help and cancel buttons
+    // Add back, help and cancel buttons
+    const backButton = {
+      label: t('back'),
+      meta: t('backspace'),
+      onSelect: () => goBack()
+    };
     const helpButton = {
       label: t('accessibilityHelp'),
       onSelect: () => accessibilityHelpScreen()
@@ -2310,14 +2337,13 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     };
-
     const changeLangButton = {
       label: t('changeLanguage'),
       onSelect: () => changeLanguageScreen()
     };
 
-    // Combine: dates + separator + times + help + cancel + change language
-    const menuItems = [...dateItems, separator, ...timeItems, helpButton, cancelButton, changeLangButton];
+    // Combine: dates + separator + times + back + help + cancel + change language
+    const menuItems = [...dateItems, separator, ...timeItems, backButton, helpButton, cancelButton, changeLangButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2333,9 +2359,10 @@
       titleHasReturnIcon: true,
     });
 
-    // Set active index to first time option (after dates + separator)
+    // Set active index to first available time option (after dates + separator)
     if (speakPrompt) {
-      activeIndex = dates.length + 1 + state.returnTimeIndex;
+      const timeOffset = timeItems.findIndex(t => t.timeIndex === state.returnTimeIndex);
+      activeIndex = dates.length + 1 + Math.max(0, timeOffset);
       focusActiveItem();
       updateActiveVisual();
     }
@@ -2350,21 +2377,15 @@
       state.returnDateIndex = newIndex;
       playQuantitySound();
 
-      // If changing to a different day, the time validation might now be valid - clear error
-      if (newIndex !== state.departureDateIndex) {
-        hideErrorAlert();
-      }
-
       const dateLabel = getDateLabel(dates[newIndex]);
       const dateLabelForTTS = formatDateForTTS(dateLabel);
       speakAsync(dateLabelForTTS, { interrupt: true, rememberSpoken: true, rememberPrompt: false });
 
-      // Re-render to update date highlights and times
-      const savedTimeIndex = state.returnTimeIndex;
+      // Re-render to update date highlights and filtered times
       returnTime({ speakPrompt: false });
 
-      // Restore focus to same time position (dates + separator + time)
-      activeIndex = dates.length + 1 + savedTimeIndex;
+      // Focus first available time (dates + separator + first time item)
+      activeIndex = dates.length + 1;
       focusActiveItem();
       updateActiveVisual();
     }
@@ -2424,7 +2445,12 @@
       });
     }
 
-    // Add help and cancel buttons
+    // Add back, help and cancel buttons
+    menuItems.push({
+      label: t('back'),
+      meta: t('backspace'),
+      onSelect: () => goBack()
+    });
     menuItems.push({
       label: t('accessibilityHelp'),
       isActionButton: true,
@@ -2530,7 +2556,12 @@
       }
     ];
 
-    // Add help and cancel buttons
+    // Add back, help and cancel buttons
+    menuItems.push({
+      label: t('back'),
+      meta: t('backspace'),
+      onSelect: () => goBack()
+    });
     menuItems.push({
       label: t('accessibilityHelp'),
       onSelect: () => accessibilityHelpScreen()
