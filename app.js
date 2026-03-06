@@ -261,7 +261,7 @@
       transactionCancelled: 'Transaction cancelled.',
 
       // Error messages
-      selectAtLeastOneTicket: 'Please select at least one ticket.',
+      selectAtLeastOneTicket: 'Please select at least one ticket. Use Up and Down arrows to choose ticket type, and Left and Right arrows to adjust quantity.',
       error: 'Error',
 
       // Confirmation
@@ -515,7 +515,7 @@
       transactionCancelled: 'Tehing tühistatud.',
 
       // Error messages
-      selectAtLeastOneTicket: 'Palun vali vähemalt üks pilet.',
+      selectAtLeastOneTicket: 'Palun vali vähemalt üks pilet. Kasuta üles- ja allanoolt pileti tüübi valimiseks ning vasak- ja paremnoolt koguse muutmiseks.',
       error: 'Viga',
 
       // Confirmation

@@ -65,23 +65,11 @@ html, body {
 }
 
 .kiosk__brandTitle {
-  font-size: 24px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.3px;
   color: var(--accent-bright);
   text-transform: uppercase;
-  position: relative;
-  padding-left: 16px;
-}
-
-/* Train icon indicator */
-.kiosk__brandTitle::before {
-  content: '▮▮';
-  position: absolute;
-  left: 0;
-  font-size: 20px;
-  color: var(--accent);
-  letter-spacing: -2px;
 }
 
 .kiosk__brandSub {
@@ -89,7 +77,6 @@ html, body {
   font-size: 15px;
   color: var(--muted);
   font-weight: 400;
-  padding-left: 16px;
 }
 
 .kiosk__status {
@@ -100,6 +87,7 @@ html, body {
   border-radius: 8px;
   border: 1px solid rgba(94,179,255,0.2);
   font-weight: 500;
+  display: none;
 }
 
 .kiosk__screen {
