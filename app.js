@@ -244,6 +244,8 @@
       pirukabaarSpecial: 'Cabbage pies are 30 percent off only today!',
 
       restartDemo: 'Restart demo',
+      demoEndedTitle: 'Demo ended',
+      demoEndedPrompt: 'Accessibility mode disabled. Press Enter to restart the demo.',
 
       // Contact staff
       callingAssistance: 'Calling for assistance',
@@ -496,6 +498,8 @@
       pirukabaarSpecial: 'Kapsapirukad on täna ainult kolmkümmend protsenti soodsamad! Tule kohe!',
 
       restartDemo: 'Taaskäivita demo',
+      demoEndedTitle: 'Demo lõppenud',
+      demoEndedPrompt: 'Ligipääsetavusrežiim on välja lülitatud. Vajuta Enter demo taaskäivitamiseks.',
 
       // Contact staff
       callingAssistance: 'Helistab abile',
@@ -666,7 +670,7 @@
       'Tallinn': 'Tallinnast',
       'Tartu': 'Tartust',
       'Narva': 'Narvast',
-      'Pärnu': 'Pärnust'
+      'Viljandi': 'Viljandist'
     };
     return elativeForms[station] || station;
   }
@@ -1208,7 +1212,7 @@
   }
 
   const data = {
-    stations: ['Tallinn', 'Tartu', 'Narva', 'Pärnu'],
+    stations: ['Tallinn', 'Tartu', 'Narva', 'Viljandi'],
     times: [
       { time: '09:15', platform: 3 },
       { time: '10:45', platform: 2 },
@@ -1532,7 +1536,7 @@
       menuItems: [
         { label: t('start'), meta: t('pressEnter'), onSelect: () => mainMenu() },
         { label: t('back'), meta: t('backspace'), onSelect: () => goBack() },
-        { label: t('changeLanguage'), onSelect: () => changeLanguageScreen() }
+        // { label: t('changeLanguage'), onSelect: () => changeLanguageScreen() }
       ],
       focusTitle: true,
       speakPrompt: true,
@@ -1557,7 +1561,7 @@
         { label: t('contactStaff'), onSelect: () => contactStaff() },
         { label: t('back'), meta: t('backspace'), onSelect: () => goBack() },
         { label: t('accessibilityHelp'), onSelect: () => accessibilityHelpScreen() },
-        { label: t('changeLanguage'), onSelect: () => changeLanguageScreen() },
+        // { label: t('changeLanguage'), onSelect: () => changeLanguageScreen() },
       ],
       focusTitle: false,
       speakPrompt: false, // We'll speak after the whistle
@@ -2014,10 +2018,10 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     });
-    menuItems.push({
-      label: t('changeLanguage'),
-      onSelect: () => changeLanguageScreen()
-    });
+    // menuItems.push({
+    //   label: t('changeLanguage'),
+    //   onSelect: () => changeLanguageScreen()
+    // });
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2063,10 +2067,10 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     });
-    menuItems.push({
-      label: t('changeLanguage'),
-      onSelect: () => changeLanguageScreen()
-    });
+    // menuItems.push({
+    //   label: t('changeLanguage'),
+    //   onSelect: () => changeLanguageScreen()
+    // });
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2121,10 +2125,10 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     });
-    menuItems.push({
-      label: t('changeLanguage'),
-      onSelect: () => changeLanguageScreen()
-    });
+    // menuItems.push({
+    //   label: t('changeLanguage'),
+    //   onSelect: () => changeLanguageScreen()
+    // });
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2205,13 +2209,13 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     };
-    const changeLangButton = {
-      label: t('changeLanguage'),
-      onSelect: () => changeLanguageScreen()
-    };
+    // const changeLangButton = {
+    //   label: t('changeLanguage'),
+    //   onSelect: () => changeLanguageScreen()
+    // };
 
-    // Combine: dates + separator + times + back + help + cancel + change language
-    const menuItems = [...dateItems, separator, ...timeItems, backButton, helpButton, cancelButton, changeLangButton];
+    // Combine: dates + separator + times + back + help + cancel
+    const menuItems = [...dateItems, separator, ...timeItems, backButton, helpButton, cancelButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2337,13 +2341,13 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     };
-    const changeLangButton = {
-      label: t('changeLanguage'),
-      onSelect: () => changeLanguageScreen()
-    };
+    // const changeLangButton = {
+    //   label: t('changeLanguage'),
+    //   onSelect: () => changeLanguageScreen()
+    // };
 
-    // Combine: dates + separator + times + back + help + cancel + change language
-    const menuItems = [...dateItems, separator, ...timeItems, backButton, helpButton, cancelButton, changeLangButton];
+    // Combine: dates + separator + times + back + help + cancel
+    const menuItems = [...dateItems, separator, ...timeItems, backButton, helpButton, cancelButton];
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2461,11 +2465,11 @@
       isActionButton: true,
       onSelect: () => cancelTransaction()
     });
-    menuItems.push({
-      label: t('changeLanguage'),
-      isActionButton: true,
-      onSelect: () => changeLanguageScreen()
-    });
+    // menuItems.push({
+    //   label: t('changeLanguage'),
+    //   isActionButton: true,
+    //   onSelect: () => changeLanguageScreen()
+    // });
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2570,10 +2574,10 @@
       label: t('cancelTransaction'),
       onSelect: () => cancelTransaction()
     });
-    menuItems.push({
-      label: t('changeLanguage'),
-      onSelect: () => changeLanguageScreen()
-    });
+    // menuItems.push({
+    //   label: t('changeLanguage'),
+    //   onSelect: () => changeLanguageScreen()
+    // });
 
     setScreen({
       locationText: t('baltiJaam'),
@@ -2616,10 +2620,10 @@
           meta: t('backspace'),
           onSelect: () => goBack()
         },
-        {
-          label: t('changeLanguage'),
-          onSelect: () => changeLanguageScreen()
-        }
+        // {
+        //   label: t('changeLanguage'),
+        //   onSelect: () => changeLanguageScreen()
+        // }
       ],
       focusTitle: true,
       speakPrompt: true,
@@ -2693,10 +2697,10 @@
             cancelTransaction();
           }
         },
-        {
-          label: t('changeLanguage'),
-          onSelect: () => changeLanguageScreen()
-        }
+        // {
+        //   label: t('changeLanguage'),
+        //   onSelect: () => changeLanguageScreen()
+        // }
       ],
       focusTitle: true,
       speakPrompt: true,
@@ -2750,10 +2754,10 @@
           label: t('stationExit'),
           onSelect: () => showDirections('exit')
         },
-        {
-          label: t('changeLanguage'),
-          onSelect: () => changeLanguageScreen()
-        }
+        // {
+        //   label: t('changeLanguage'),
+        //   onSelect: () => changeLanguageScreen()
+        // }
       ],
       focusTitle: true,
       speakPrompt: true,
@@ -2825,23 +2829,22 @@
             onSelect: () => {
               speechEnabled = true;
               resetState();
-              languageScreen();
+              bootScreen();
             }
           },
-          {
-            label: t('changeLanguage'),
-            onSelect: () => changeLanguageScreen()
-          }
+          // {
+          //   label: t('changeLanguage'),
+          //   onSelect: () => changeLanguageScreen()
+          // }
         ],
         focusTitle: true,
         speakPrompt: false, // Don't speak yet - wait for fanfare
       });
 
-      // Play fanfare, then speak after it completes
+      // Play fanfare, then speak after it completes, then show demo ended screen
       playFanfareSound().then(() => {
-        speakAsync(specialMsg, { interrupt: true, rememberSpoken: true, rememberPrompt: true });
-        // Turn speech off after announcing directions
-        setTimeout(() => { speechEnabled = false; }, 250);
+        speakAsync(specialMsg, { interrupt: true, rememberSpoken: true, rememberPrompt: true })
+          .then(() => demoEndedScreen());
       });
 
       return;
@@ -2867,20 +2870,44 @@
           onSelect: () => {
             speechEnabled = true;
             resetState();
-            languageScreen();
+            bootScreen();
           }
         },
-        {
-          label: t('changeLanguage'),
-          onSelect: () => changeLanguageScreen()
-        }
+        // {
+        //   label: t('changeLanguage'),
+        //   onSelect: () => changeLanguageScreen()
+        // }
       ],
       focusTitle: true,
       speakPrompt: true,
     });
 
-    // Turn speech off after announcing directions
-    setTimeout(() => { speechEnabled = false; }, 250);
+    // Show demo ended screen after speech finishes
+    speechChain.then(() => demoEndedScreen());
+  }
+
+  function demoEndedScreen() {
+    speechEnabled = false;
+    state.screen = 'demoEnded';
+    setScreen({
+      locationText: t('interactiveDemo'),
+      stepText: '',
+      title: t('demoEndedTitle'),
+      prompt: t('demoEndedPrompt'),
+      menuItems: [
+        {
+          label: t('restartDemo'),
+          meta: t('pressEnter'),
+          onSelect: () => {
+            speechEnabled = true;
+            resetState();
+            bootScreen();
+          }
+        }
+      ],
+      focusTitle: true,
+      speakPrompt: false,
+    });
   }
 
   function cancelTransaction() {
@@ -2898,7 +2925,7 @@
         returnFromLanguageChange();
         return;
       case 'boot':
-        languageScreen();
+        // languageScreen();
         return;
       case 'main':
         bootScreen();
@@ -2953,6 +2980,8 @@
         return;
       case 'directions':
         finalMessage();
+        return;
+      case 'demoEnded':
         return;
       default:
         mainMenu();
@@ -3178,8 +3207,9 @@
 
   // Start
   window.addEventListener('load', () => {
-    // Start with language selection
-    languageScreen();
+    // Skip language selection - English only mode
+    // languageScreen();
+    bootScreen();
   });
 
 })();
