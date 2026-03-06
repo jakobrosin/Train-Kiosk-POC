@@ -546,6 +546,31 @@
   // A simple queue so we can avoid interrupting ourselves between screens.
   let speechChain = Promise.resolve();
 
+  // Preferred voice cache to avoid browser picking novelty voices (especially Chrome on macOS)
+  let preferredVoiceEN = null;
+
+  function loadPreferredVoices() {
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices.length) return;
+
+    const enPreferred = ['Samantha', 'Karen', 'Daniel', 'Google US English', 'Google UK English Female'];
+    const enVoices = voices.filter(v => v.lang.startsWith('en'));
+
+    for (const name of enPreferred) {
+      const match = enVoices.find(v => v.name.includes(name));
+      if (match) { preferredVoiceEN = match; break; }
+    }
+    if (!preferredVoiceEN) {
+      preferredVoiceEN = enVoices.find(v => v.lang === 'en-US') || enVoices[0] || null;
+    }
+  }
+
+  // Voices may load async (Chrome) or sync (Safari)
+  if ('speechSynthesis' in window) {
+    loadPreferredVoices();
+    speechSynthesis.addEventListener('voiceschanged', loadPreferredVoices);
+  }
+
   function speakAsync(text, { interrupt = true, rememberSpoken = true, rememberPrompt = false, forceLang = null, skipLiveRegion = false } = {}) {
     if (rememberSpoken) lastSpoken = text;
     if (rememberPrompt) lastPrompt = text;
@@ -577,6 +602,11 @@
           } else {
             u.lang = 'en-US';
           }
+        }
+
+        // Explicitly set voice to avoid browser picking novelty voices
+        if (!forceLang && currentLang !== 'et' && preferredVoiceEN) {
+          u.voice = preferredVoiceEN;
         }
 
         u.onend = () => resolve();
